@@ -22,6 +22,17 @@
     <url-pattern>/app/ingredienti</url-pattern>
   </servlet-mapping>
 
+  <!-- Espone il servizio RPC dedicato agli utenti. -->
+  <servlet>
+    <servlet-name>utenteServlet</servlet-name>
+    <servlet-class>it.unibo.UtenteServiceImpl</servlet-class>
+  </servlet>
+
+  <servlet-mapping>
+    <servlet-name>utenteServlet</servlet-name>
+    <url-pattern>/app/utente</url-pattern>
+  </servlet-mapping>
+
 	<!-- Default page to serve -->
   <welcome-file-list>
     <welcome-file>index.html</welcome-file>

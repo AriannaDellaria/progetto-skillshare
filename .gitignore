@@ -6,7 +6,11 @@ pom.xml.versionsBackup
 pom.xml.next
 release.properties
 
-# --- IDE (VS Code & Eclipse) ---
+# --- IDE (IntelliJ, VS Code & Eclipse) ---
+.idea/
+*.iml
+*.eml
+*.userlibraries
 .vscode/
 .settings/
 .classpath
@@ -31,9 +35,8 @@ war/WEB-INF/lib/
 *.gwt.rpc
 
 # --- Database (MapDB) ---
-# *.db # Se ignorate il file del database assicuratevi di riinserirlo prima di consegnare
-*.db.p
-*.db.t
+*.db
+*.db.*
 dockerdata/
 
 # --- Sistema Operativo ---
