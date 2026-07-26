@@ -147,7 +147,8 @@ public class UtenteRepository {
      */
     public Utente aggiornaProfilo(
             String id,
-            String bio
+            String bio,
+            String fotoProfilo
     ) {
         Utente utente = trovaPerId(id);
 
@@ -157,6 +158,9 @@ public class UtenteRepository {
 
         utente.setBio(bio == null ? "" : bio);
 
+        utente.setFotoProfilo(
+                fotoProfilo == null ? "" : fotoProfilo
+        );
 
         utenti.put(id, utente);
         DatabaseCore.commit();
