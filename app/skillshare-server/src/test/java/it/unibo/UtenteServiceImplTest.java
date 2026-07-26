@@ -6,6 +6,8 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import java.util.List;
+
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.when;
 
@@ -241,7 +243,7 @@ public class UtenteServiceImplTest {
      * Verifica che la biografia venga aggiornata correttamente.
      */
     @Test
-    void aggiornaProfiloConNuovaBiografiaSalvaLaModifica() {
+    void aggiornaProfiloConBioETagSalvaINuoviDati() {
 
         String nomeUtente =
                 "utente_" + System.nanoTime();
@@ -252,16 +254,31 @@ public class UtenteServiceImplTest {
                 "Password!"
         );
 
+        List<String> tag = List.of(
+                "Java",
+                "Programmazione"
+        );
+
         Utente aggiornato = serviceReale.aggiornaProfilo(
                 registrato.getId(),
                 "Mi piace condividere conoscenze",
-                ""
+                "",
+                tag
         );
 
         assertNotNull(aggiornato);
         assertEquals(
                 "Mi piace condividere conoscenze",
                 aggiornato.getBio()
+        );
+        assertEquals(
+                2,
+                aggiornato.getTagCompetenze().size()
+        );
+
+        assertTrue(
+                aggiornato.getTagCompetenze()
+                        .contains("Java")
         );
     }
 
@@ -275,7 +292,8 @@ public class UtenteServiceImplTest {
         Utente aggiornato = serviceReale.aggiornaProfilo(
                 "id inesistente",
                 "Nuova bio",
-                "foto.png"
+                "",
+                List.of("Java")
         );
 
         assertNull(aggiornato);
@@ -299,7 +317,8 @@ public class UtenteServiceImplTest {
         Utente aggiornato = serviceReale.aggiornaProfilo(
                 registrato.getId(),
                 null,
-                ""
+                "",
+                List.of()
         );
 
         assertNotNull(aggiornato);
@@ -328,13 +347,15 @@ public class UtenteServiceImplTest {
         serviceReale.aggiornaProfilo(
                 registrato.getId(),
                 "Prima descrizione",
-                ""
+                "",
+                List.of()
         );
 
         Utente aggiornato = serviceReale.aggiornaProfilo(
                 registrato.getId(),
                 "Seconda descrizione",
-                ""
+                "",
+                List.of()
         );
 
         assertEquals(
@@ -361,7 +382,8 @@ public class UtenteServiceImplTest {
         Utente aggiornato = serviceReale.aggiornaProfilo(
                 registrato.getId(),
                 "",
-                "foto.png"
+                "foto.png",
+                List.of()
         );
 
         assertNotNull(aggiornato);
@@ -390,7 +412,8 @@ public class UtenteServiceImplTest {
         Utente aggiornato = serviceReale.aggiornaProfilo(
                 registrato.getId(),
                 "Appassionata di informatica",
-                "profilo.jpg"
+                "profilo.jpg",
+                List.of()
         );
 
         assertEquals(
@@ -401,6 +424,50 @@ public class UtenteServiceImplTest {
         assertEquals(
                 "profilo.jpg",
                 aggiornato.getFotoProfilo()
+        );
+    }
+    /**
+     * Verifica che i tag di competenza vengano aggiornati correttamente.
+     */
+    @Test
+    void aggiornaProfiloSalvaNuoviTagCompetenza() {
+
+        String nomeUtente =
+                "utente_" + System.nanoTime();
+
+        Utente registrato = serviceReale.registra(
+                nomeUtente,
+                nomeUtente + "@email.it",
+                "Password!"
+        );
+
+
+        Utente aggiornato = serviceReale.aggiornaProfilo(
+                registrato.getId(),
+                "",
+                "",
+                List.of(
+                        "Java",
+                        "Database"
+                )
+        );
+
+
+        assertNotNull(aggiornato);
+
+        assertEquals(
+                2,
+                aggiornato.getTagCompetenze().size()
+        );
+
+        assertTrue(
+                aggiornato.getTagCompetenze()
+                        .contains("Java")
+        );
+
+        assertTrue(
+                aggiornato.getTagCompetenze()
+                        .contains("Database")
         );
     }
 }

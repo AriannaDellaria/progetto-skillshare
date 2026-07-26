@@ -2,6 +2,8 @@ package it.unibo;
 
 import com.google.gwt.user.client.rpc.AsyncCallback;
 
+import java.util.List;
+
 /**
  * Versione asincrona del servizio utenti.
  */
@@ -31,6 +33,7 @@ public interface UtenteServiceAsync {
             String idUtente,
             String nuovaBio,
             String fotoProfilo,
+            List<String> tagCompetenze,
             AsyncCallback<Utente> callback
     );
 }

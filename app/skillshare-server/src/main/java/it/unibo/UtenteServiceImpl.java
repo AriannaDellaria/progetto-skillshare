@@ -2,6 +2,9 @@ package it.unibo;
 
 import com.google.gwt.user.server.rpc.jakarta.RemoteServiceServlet;
 
+import java.util.ArrayList;
+import java.util.List;
+
 /**
  * Espone tramite RPC la registrazione degli utenti.
  */
@@ -64,7 +67,8 @@ public class UtenteServiceImpl extends RemoteServiceServlet implements UtenteSer
     public Utente aggiornaProfilo(
             String id,
             String bio,
-            String fotoProfilo
+            String fotoProfilo,
+            List<String> tagCompetenze
     ) {
         if (id == null || id.trim().isEmpty()) {
             return null;
@@ -76,11 +80,15 @@ public class UtenteServiceImpl extends RemoteServiceServlet implements UtenteSer
         if (fotoProfilo == null) {
             fotoProfilo = "";
         }
+        if (tagCompetenze == null) {
+            tagCompetenze = new ArrayList<>();
+        }
 
         return utenteRepository.aggiornaProfilo(
                 id,
                 bio.trim(),
-                fotoProfilo.trim()
+                fotoProfilo.trim(),
+                tagCompetenze
         );
     }
 }

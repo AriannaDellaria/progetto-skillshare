@@ -4,6 +4,9 @@ import com.google.gwt.core.client.GWT;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.*;
 
+import java.util.ArrayList;
+import java.util.List;
+
 /**
  * Mostra il profilo dell'utente autenticato.
  */
@@ -117,13 +120,9 @@ public class ProfiloGui {
             );
         });
 
-        Label tagLabel = new Label(
-                "Competenze: "
-                        + String.join(
-                        ", ",
-                        utente.getTagCompetenze()
-                )
-        );
+        Label tagLabel = new Label("Competenze separate da virgola");
+        TextBox tagBox = new TextBox();
+        tagBox.setText(String.join(", ", utente.getTagCompetenze()));
 
         Button salvaButton = new Button("Salva modifiche");
         Label messaggio = new Label();
@@ -134,6 +133,7 @@ public class ProfiloGui {
                             utente.getId(),
                             bioBox.getText(),
                             nuovaFoto[0],
+                            convertiTag(tagBox.getText()),
                             new AsyncCallback<Utente>() {
 
                                 @Override
@@ -169,11 +169,33 @@ public class ProfiloGui {
         panel.add(bioBox);
         panel.add(fotoLabel);
         panel.add(tagLabel);
+        panel.add(tagBox);
         panel.add(salvaButton);
         panel.add(messaggio);
         panel.add(NavigationHelper.creaBottoneIndietroHomeUtente());
 
         RootPanel.get().add(panel);
+    }
+
+    /**
+     * Trasforma il testo inserito in una lista di competenze.
+     */
+    private List<String> convertiTag(String testo) {
+        List<String> tag = new ArrayList<>();
+
+        if (testo == null || testo.trim().isEmpty()) {
+            return tag;
+        }
+
+        for (String valore : testo.split(",")) {
+            String tagPulito = valore.trim();
+
+            if (!tagPulito.isEmpty()) {
+                tag.add(tagPulito);
+            }
+        }
+
+        return tag;
     }
 
     /**
