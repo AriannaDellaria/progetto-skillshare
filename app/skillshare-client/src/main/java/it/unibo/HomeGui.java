@@ -34,16 +34,22 @@ public class HomeGui {
         );
 
         Button logoutButton = new Button("Logout");
-
         logoutButton.addClickHandler(event -> {
             SessioneUtente.esci();
             new LoginGui().mostra();
         });
 
 
+        Button profiloButton = new Button("Profilo");
+        profiloButton.addClickHandler(event -> {
+            new ProfiloGui().mostra();
+        });
+
+
         panel.add(titolo);
         panel.add(benvenuto);
         panel.add(logoutButton);
+        panel.add(profiloButton);
 
         RootPanel.get().add(panel);
     }
