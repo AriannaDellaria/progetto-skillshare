@@ -3,6 +3,8 @@ package it.unibo;
 import com.google.gwt.user.client.rpc.RemoteService;
 import com.google.gwt.user.client.rpc.RemoteServiceRelativePath;
 
+import java.util.List;
+
 /**
  * Definisce il servizio RPC per la registrazione.
  */
@@ -32,7 +34,8 @@ public interface UtenteService extends RemoteService {
     Utente aggiornaProfilo(
             String id,
             String bio,
-            String fotoProfilo
+            String fotoProfilo,
+            List<String> tagCompetenze
     );
 }
 

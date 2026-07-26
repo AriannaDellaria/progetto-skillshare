@@ -5,6 +5,8 @@ import org.mapdb.Serializer;
 
 import java.util.UUID;
 import java.util.concurrent.ConcurrentMap;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Gestisce la persistenza degli utenti.
@@ -148,7 +150,8 @@ public class UtenteRepository {
     public Utente aggiornaProfilo(
             String id,
             String bio,
-            String fotoProfilo
+            String fotoProfilo,
+            List<String> tagCompetenze
     ) {
         Utente utente = trovaPerId(id);
 
@@ -161,6 +164,11 @@ public class UtenteRepository {
         utente.setFotoProfilo(
                 fotoProfilo == null ? "" : fotoProfilo
         );
+        if (tagCompetenze == null) {
+            utente.setTagCompetenze(new ArrayList<>());
+        } else {
+            utente.setTagCompetenze(new ArrayList<>(tagCompetenze));
+        }
 
         utenti.put(id, utente);
         DatabaseCore.commit();
