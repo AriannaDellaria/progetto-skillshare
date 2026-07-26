@@ -27,4 +27,13 @@ public final class NavigationHelper {
         bottone.addClickHandler(event -> new RegistrazioneGui().mostra());
         return bottone;
     }
+
+    /**
+     * Pulsante per tornare alla home dell'utente autenticato.
+     */
+    public static Button creaBottoneIndietroHomeUtente() {
+        Button indietroButton = new Button("Indietro");
+        indietroButton.addClickHandler(event -> new HomeGui().mostra());
+        return indietroButton;
+    }
 }
