@@ -23,4 +23,13 @@ public interface UtenteServiceAsync {
             String password,
             AsyncCallback<Utente> callback
     );
+
+    /**
+     * Invia al server i nuovi dati del profilo.
+     */
+    void aggiornaBio(
+            String idUtente,
+            String nuovaBio,
+            AsyncCallback<Utente> callback
+    );
 }

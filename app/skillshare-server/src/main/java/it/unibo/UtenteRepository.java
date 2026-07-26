@@ -130,4 +130,37 @@ public class UtenteRepository {
 
         return utente;
     }
+
+    /**
+     * Cerca un utente tramite ID.
+     */
+    public Utente trovaPerId(String id) {
+        if (id == null) {
+            return null;
+        }
+
+        return utenti.get(id);
+    }
+
+    /**
+     * Aggiorna e salva il profilo.
+     */
+    public Utente aggiornaProfilo(
+            String id,
+            String bio
+    ) {
+        Utente utente = trovaPerId(id);
+
+        if (utente == null) {
+            return null;
+        }
+
+        utente.setBio(bio == null ? "" : bio);
+
+
+        utenti.put(id, utente);
+        DatabaseCore.commit();
+
+        return utente;
+    }
 }

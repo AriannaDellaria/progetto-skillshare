@@ -236,4 +236,105 @@ public class UtenteServiceImplTest {
         assertNull(serviceReale.login("", ""));
         assertNull(serviceReale.login(null, null));
     }
+
+    /**
+     * Verifica che la biografia venga aggiornata correttamente.
+     */
+    @Test
+    void aggiornaBioConUtenteEsistenteSalvaLaNuovaBiografia() {
+
+        String nomeUtente =
+                "utente_" + System.nanoTime();
+
+        Utente registrato = serviceReale.registra(
+                nomeUtente,
+                nomeUtente + "@email.it",
+                "Password!"
+        );
+
+        Utente aggiornato = serviceReale.aggiornaBio(
+                registrato.getId(),
+                "Mi piace condividere conoscenze"
+        );
+
+        assertNotNull(aggiornato);
+        assertEquals(
+                "Mi piace condividere conoscenze",
+                aggiornato.getBio()
+        );
+    }
+
+    /**
+     * Verifica che non venga aggiornata una biografia
+     * di un utente non presente.
+     */
+    @Test
+    void aggiornaBioConUtenteInesistenteRestituisceNull() {
+
+        Utente aggiornato = serviceReale.aggiornaBio(
+                "id inesistente",
+                "Nuova bio"
+        );
+
+        assertNull(aggiornato);
+    }
+
+    /**
+     * Verifica che una biografia nulla venga gestita correttamente.
+     */
+    @Test
+    void aggiornaBioConTestoNulloSalvaBiografiaVuota() {
+
+        String nomeUtente =
+                "utente_" + System.nanoTime();
+
+        Utente registrato = serviceReale.registra(
+                nomeUtente,
+                nomeUtente + "@email.it",
+                "Password!"
+        );
+
+        Utente aggiornato = serviceReale.aggiornaBio(
+                registrato.getId(),
+                null
+        );
+
+        assertNotNull(aggiornato);
+        assertEquals(
+                "",
+                aggiornato.getBio()
+        );
+    }
+
+
+    /**
+     * Verifica che una nuova biografia sostituisca quella precedente.
+     */
+    @Test
+    void aggiornaBioSostituisceLaBiografiaPrecedente() {
+
+        String nomeUtente =
+                "utente_" + System.nanoTime();
+
+        Utente registrato = serviceReale.registra(
+                nomeUtente,
+                nomeUtente + "@email.it",
+                "Password!"
+        );
+
+        serviceReale.aggiornaBio(
+                registrato.getId(),
+                "Prima descrizione"
+        );
+
+        Utente aggiornato = serviceReale.aggiornaBio(
+                registrato.getId(),
+                "Seconda descrizione"
+        );
+
+        assertEquals(
+                "Seconda descrizione",
+                aggiornato.getBio()
+        );
+    }
 }

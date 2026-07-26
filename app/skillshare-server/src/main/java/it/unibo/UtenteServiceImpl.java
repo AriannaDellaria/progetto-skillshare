@@ -56,4 +56,26 @@ public class UtenteServiceImpl extends RemoteServiceServlet implements UtenteSer
                 password
         );
     }
+
+    /**
+     * Aggiorna il profilo dell'utente sul server.
+     */
+    @Override
+    public Utente aggiornaBio(
+            String id,
+            String bio
+    ) {
+        if (id == null || id.trim().isEmpty()) {
+            return null;
+        }
+
+        if (bio == null) {
+            bio = "";
+        }
+
+        return utenteRepository.aggiornaProfilo(
+                id,
+                bio.trim()
+        );
+    }
 }
