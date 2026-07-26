@@ -41,13 +41,81 @@ public class ProfiloGui {
                 utente.getBio()
         );
 
-        Label fotoLabel;
+        Label fotoLabel = new Label(
+                "Foto profilo (formati consentiti: PNG, JPG, JPEG)"
+        );
+        FileUpload fotoUpload = new FileUpload();
+
+        Image anteprimaFoto = new Image();
+        anteprimaFoto.setWidth("150px");
+        anteprimaFoto.setHeight("150px");
+
+        //rendo tonda l'anteprima della foto
+        anteprimaFoto.getElement()
+                .getStyle()
+                .setProperty(
+                        "borderRadius",
+                        "50%"
+                );
 
         if (utente.getFotoProfilo() != null && !utente.getFotoProfilo().isEmpty()) {
-            fotoLabel = new Label("Foto profilo presente");
-        } else {
-            fotoLabel = new Label("Nessuna foto profilo");
+            anteprimaFoto.setUrl(
+                    utente.getFotoProfilo()
+            );
         }
+
+        fotoUpload.setName("fotoProfilo");
+        fotoUpload.getElement().setAttribute(
+                "accept",
+                ".png,.jpg,.jpeg,image/png,image/jpeg"
+        );
+
+        // Permette di sapere se il file selezionato è valido.
+        final boolean[] fotoValida = {true};
+
+        // Contiene la foto aggiornata prima del salvataggio.
+        final String[] nuovaFoto = {
+                utente.getFotoProfilo()
+        };
+
+        Label fotoSelezionataLabel = new Label();
+
+        fotoUpload.addChangeHandler(event -> {
+
+            String nomeFile = fotoUpload.getFilename();
+
+            if (nomeFile == null || nomeFile.trim().isEmpty()) {
+                fotoValida[0] = true;
+                fotoSelezionataLabel.setText("Nessuna immagine selezionata");
+                anteprimaFoto.setUrl("");
+                return;
+            }
+
+
+            String nomeMinuscolo = nomeFile.toLowerCase();
+
+            boolean formatoSupportato =
+                    nomeMinuscolo.endsWith(".png")
+                            || nomeMinuscolo.endsWith(".jpg")
+                            || nomeMinuscolo.endsWith(".jpeg");
+
+            if (!formatoSupportato) {
+                fotoValida[0] = false;
+                fotoSelezionataLabel.setText("Tipo di file non supportato. Usa PNG, JPG o JPEG.");
+                fotoUpload.getElement().setPropertyString("value", "");
+                anteprimaFoto.setUrl("");
+                return;
+            }
+
+            fotoValida[0] = true;
+            fotoSelezionataLabel.setText("Immagine scelta: " + nomeFile);
+
+            caricaAnteprimaFoto(
+                    fotoUpload,
+                    anteprimaFoto,
+                    nuovaFoto
+            );
+        });
 
         Label tagLabel = new Label(
                 "Competenze: "
@@ -62,9 +130,10 @@ public class ProfiloGui {
 
         salvaButton.addClickHandler(event -> {
 
-                    utenteService.aggiornaBio(
+                    utenteService.aggiornaProfilo(
                             utente.getId(),
                             bioBox.getText(),
+                            nuovaFoto[0],
                             new AsyncCallback<Utente>() {
 
                                 @Override
@@ -91,6 +160,9 @@ public class ProfiloGui {
         );
 
         panel.add(titolo);
+        panel.add(anteprimaFoto);
+        panel.add(fotoUpload);
+        panel.add(fotoSelezionataLabel);
         panel.add(nomeLabel);
         panel.add(emailLabel);
         panel.add(bioLabel);
@@ -103,4 +175,36 @@ public class ProfiloGui {
 
         RootPanel.get().add(panel);
     }
+
+    /**
+     * Mostra l'anteprima della foto selezionata.
+     */
+    private native void caricaAnteprimaFoto(
+            FileUpload upload,
+            Image immagine,
+            String[] nuovaFoto
+    ) /*-{
+
+    var file =
+        upload.@com.google.gwt.user.client.ui.FileUpload::getElement()()
+        .files[0];
+
+    if (!file) {
+        return;
+    }
+
+    var reader = new FileReader();
+
+    reader.onload = function(e) {
+
+        var url = e.target.result;
+
+        immagine.@com.google.gwt.user.client.ui.Image::setUrl(Ljava/lang/String;)(url);
+
+        nuovaFoto[0] = url;
+    };
+
+    reader.readAsDataURL(file);
+
+    }-*/;
 }

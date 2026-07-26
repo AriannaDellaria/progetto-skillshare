@@ -241,7 +241,7 @@ public class UtenteServiceImplTest {
      * Verifica che la biografia venga aggiornata correttamente.
      */
     @Test
-    void aggiornaBioConUtenteEsistenteSalvaLaNuovaBiografia() {
+    void aggiornaProfiloConNuovaBiografiaSalvaLaModifica() {
 
         String nomeUtente =
                 "utente_" + System.nanoTime();
@@ -252,9 +252,10 @@ public class UtenteServiceImplTest {
                 "Password!"
         );
 
-        Utente aggiornato = serviceReale.aggiornaBio(
+        Utente aggiornato = serviceReale.aggiornaProfilo(
                 registrato.getId(),
-                "Mi piace condividere conoscenze"
+                "Mi piace condividere conoscenze",
+                ""
         );
 
         assertNotNull(aggiornato);
@@ -265,25 +266,26 @@ public class UtenteServiceImplTest {
     }
 
     /**
-     * Verifica che non venga aggiornata una biografia
+     * Verifica che non venga aggiornato un profilo
      * di un utente non presente.
      */
     @Test
-    void aggiornaBioConUtenteInesistenteRestituisceNull() {
+    void aggiornaProfiloConUtenteInesistenteRestituisceNull() {
 
-        Utente aggiornato = serviceReale.aggiornaBio(
+        Utente aggiornato = serviceReale.aggiornaProfilo(
                 "id inesistente",
-                "Nuova bio"
+                "Nuova bio",
+                "foto.png"
         );
 
         assertNull(aggiornato);
     }
 
     /**
-     * Verifica che una biografia nulla venga gestita correttamente.
+     * Verifica che una biografia nulla venga salvata come vuota.
      */
     @Test
-    void aggiornaBioConTestoNulloSalvaBiografiaVuota() {
+    void aggiornaProfiloConBiografiaNullSalvaBiografiaVuota() {
 
         String nomeUtente =
                 "utente_" + System.nanoTime();
@@ -294,9 +296,10 @@ public class UtenteServiceImplTest {
                 "Password!"
         );
 
-        Utente aggiornato = serviceReale.aggiornaBio(
+        Utente aggiornato = serviceReale.aggiornaProfilo(
                 registrato.getId(),
-                null
+                null,
+                ""
         );
 
         assertNotNull(aggiornato);
@@ -311,7 +314,7 @@ public class UtenteServiceImplTest {
      * Verifica che una nuova biografia sostituisca quella precedente.
      */
     @Test
-    void aggiornaBioSostituisceLaBiografiaPrecedente() {
+    void aggiornaProfiloSostituisceLaBiografiaPrecedente() {
 
         String nomeUtente =
                 "utente_" + System.nanoTime();
@@ -322,19 +325,82 @@ public class UtenteServiceImplTest {
                 "Password!"
         );
 
-        serviceReale.aggiornaBio(
+        serviceReale.aggiornaProfilo(
                 registrato.getId(),
-                "Prima descrizione"
+                "Prima descrizione",
+                ""
         );
 
-        Utente aggiornato = serviceReale.aggiornaBio(
+        Utente aggiornato = serviceReale.aggiornaProfilo(
                 registrato.getId(),
-                "Seconda descrizione"
+                "Seconda descrizione",
+                ""
         );
 
         assertEquals(
                 "Seconda descrizione",
                 aggiornato.getBio()
+        );
+    }
+
+    /**
+     * Verifica che la foto del profilo venga aggiornata correttamente.
+     */
+    @Test
+    void aggiornaProfiloConNuovaFotoSalvaLaModifica() {
+
+        String nomeUtente =
+                "utente_" + System.nanoTime();
+
+        Utente registrato = serviceReale.registra(
+                nomeUtente,
+                nomeUtente + "@email.it",
+                "Password!"
+        );
+
+        Utente aggiornato = serviceReale.aggiornaProfilo(
+                registrato.getId(),
+                "",
+                "foto.png"
+        );
+
+        assertNotNull(aggiornato);
+
+        assertEquals(
+                "foto.png",
+                aggiornato.getFotoProfilo()
+        );
+    }
+
+    /**
+     * Verifica che aggiornando la foto venga mantenuta la biografia.
+     */
+    @Test
+    void aggiornaProfiloConFotoMantieneBiografiaEsistente() {
+
+        String nomeUtente =
+                "utente_" + System.nanoTime();
+
+        Utente registrato = serviceReale.registra(
+                nomeUtente,
+                nomeUtente + "@email.it",
+                "Password!"
+        );
+
+        Utente aggiornato = serviceReale.aggiornaProfilo(
+                registrato.getId(),
+                "Appassionata di informatica",
+                "profilo.jpg"
+        );
+
+        assertEquals(
+                "Appassionata di informatica",
+                aggiornato.getBio()
+        );
+
+        assertEquals(
+                "profilo.jpg",
+                aggiornato.getFotoProfilo()
         );
     }
 }

@@ -61,9 +61,10 @@ public class UtenteServiceImpl extends RemoteServiceServlet implements UtenteSer
      * Aggiorna il profilo dell'utente sul server.
      */
     @Override
-    public Utente aggiornaBio(
+    public Utente aggiornaProfilo(
             String id,
-            String bio
+            String bio,
+            String fotoProfilo
     ) {
         if (id == null || id.trim().isEmpty()) {
             return null;
@@ -72,10 +73,14 @@ public class UtenteServiceImpl extends RemoteServiceServlet implements UtenteSer
         if (bio == null) {
             bio = "";
         }
+        if (fotoProfilo == null) {
+            fotoProfilo = "";
+        }
 
         return utenteRepository.aggiornaProfilo(
                 id,
-                bio.trim()
+                bio.trim(),
+                fotoProfilo.trim()
         );
     }
 }
