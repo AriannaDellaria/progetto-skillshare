@@ -25,5 +25,13 @@ public interface UtenteService extends RemoteService {
             String nomeUtente,
             String password
     );
+
+    /**
+     * Richiede l'aggiornamento del profilo utente.
+     */
+    Utente aggiornaBio(
+            String idUtente,
+            String nuovaBio
+    );
 }
 
