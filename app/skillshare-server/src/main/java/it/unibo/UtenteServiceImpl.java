@@ -5,10 +5,9 @@ import com.google.gwt.user.server.rpc.jakarta.RemoteServiceServlet;
 /**
  * Espone tramite RPC la registrazione degli utenti.
  */
-public class UtenteServiceImpl
-        extends RemoteServiceServlet
-        implements UtenteService {
+public class UtenteServiceImpl extends RemoteServiceServlet implements UtenteService {
 
+    private final UtenteRepository utenteRepository;
     private final GestoreRegistrazione gestoreRegistrazione;
 
     /**
@@ -21,11 +20,9 @@ public class UtenteServiceImpl
     /**
      * Permette di fornire un repository controllato nei test.
      */
-    UtenteServiceImpl(
-            UtenteRepository utenteRepository
-    ) {
-        this.gestoreRegistrazione =
-                new GestoreRegistrazione(utenteRepository);
+    UtenteServiceImpl( UtenteRepository utenteRepository) {
+        this.utenteRepository = utenteRepository;
+        this.gestoreRegistrazione = new GestoreRegistrazione(utenteRepository);
     }
 
     /**
@@ -40,6 +37,22 @@ public class UtenteServiceImpl
         return gestoreRegistrazione.registra(
                 nomeUtente,
                 email,
+                password
+        );
+    }
+
+    // Esegue il login controllando le credenziali nel repository.
+    @Override
+    public Utente login(String nomeUtente, String password) {
+        if (nomeUtente == null
+                || nomeUtente.trim().isEmpty()
+                || password == null
+                || password.isEmpty()) {
+            return null;
+        }
+
+        return utenteRepository.login(
+                nomeUtente.trim(),
                 password
         );
     }

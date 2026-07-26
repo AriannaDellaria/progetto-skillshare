@@ -16,4 +16,11 @@ public interface UtenteServiceAsync {
             String password,
             AsyncCallback<Utente> callback
     );
+
+    // Invia al server la richiesta di accesso.
+    void login(
+            String nomeUtente,
+            String password,
+            AsyncCallback<Utente> callback
+    );
 }

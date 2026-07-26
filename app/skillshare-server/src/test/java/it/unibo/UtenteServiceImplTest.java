@@ -6,9 +6,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.when;
 
 /**
@@ -19,8 +17,9 @@ public class UtenteServiceImplTest {
 
     @Mock
     private UtenteRepository utenteRepository;
-
     private UtenteServiceImpl service;
+    private UtenteRepository repositoryReale;
+    private UtenteServiceImpl serviceReale;
 
     /**
      * Crea il servizio con un repository simulato.
@@ -28,6 +27,8 @@ public class UtenteServiceImplTest {
     @BeforeEach
     public void setUp() {
         service = new UtenteServiceImpl(utenteRepository);
+        repositoryReale = new UtenteRepository();
+        serviceReale = new UtenteServiceImpl(repositoryReale);
     }
 
     /**
@@ -142,5 +143,97 @@ public class UtenteServiceImplTest {
                 "Email già registrata.",
                 eccezione.getMessage()
         );
+    }
+
+    /**
+     * Verifica che gli spazi nel nome utente vengano ignorati.
+     */
+    @Test
+    void loginConSpaziNelNomeUtente() {
+        String nomeUtente =
+                "utente_" + System.nanoTime();
+
+        serviceReale.registra(
+                nomeUtente,
+                nomeUtente + "@email.it",
+                "Password!"
+        );
+
+        Utente autenticato = serviceReale.login(
+                "  " + nomeUtente + "  ",
+                "Password!"
+        );
+
+        assertNotNull(autenticato);
+    }
+
+    /**
+     * Verifica che un utente registrato possa effettuare il login.
+     */
+    @Test
+    void loginConCredenzialiCorretteRestituisceUtente() {
+        String nomeUtente =
+                "utente_" + System.nanoTime();
+
+        Utente registrato = serviceReale.registra(
+                nomeUtente,
+                nomeUtente + "@email.it",
+                "Password!"
+        );
+
+        Utente autenticato = serviceReale.login(
+                nomeUtente,
+                "Password!"
+        );
+
+        assertNotNull(autenticato);
+        assertEquals(
+                registrato.getId(),
+                autenticato.getId()
+        );
+    }
+
+    /**
+     * Verifica che una password errata impedisca il login.
+     */
+    @Test
+    void loginConPasswordErrataRestituisceNull() {
+        String nomeUtente =
+                "utente_" + System.nanoTime();
+
+        serviceReale.registra(
+                nomeUtente,
+                nomeUtente + "@email.it",
+                "Password!"
+        );
+
+        Utente autenticato = serviceReale.login(
+                nomeUtente,
+                "PasswordSbagliata!"
+        );
+
+        assertNull(autenticato);
+    }
+
+    /**
+     * Verifica che un utente inesistente non possa accedere.
+     */
+    @Test
+    void loginConNomeUtenteInesistenteRestituisceNull() {
+        Utente autenticato = serviceReale.login(
+                "utenteInesistente",
+                "Password!"
+        );
+
+        assertNull(autenticato);
+    }
+
+    /**
+     * Verifica che credenziali vuote non permettano il login.
+     */
+    @Test
+    void loginConCredenzialiVuoteRestituisceNull() {
+        assertNull(serviceReale.login("", ""));
+        assertNull(serviceReale.login(null, null));
     }
 }

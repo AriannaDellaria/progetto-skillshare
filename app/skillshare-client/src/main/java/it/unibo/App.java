@@ -13,6 +13,6 @@ public class App implements EntryPoint {
 	 */
 	@Override
 	public void onModuleLoad() {
-		new RegistrazioneGui().mostra();
+		new LoginGui().mostra();
 	}
 }
