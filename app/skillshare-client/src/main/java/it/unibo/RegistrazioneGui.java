@@ -133,6 +133,7 @@ public class RegistrazioneGui {
         panel.add(requisitoPassword);
         panel.add(registraButton);
         panel.add(messaggio);
+        panel.add(NavigationHelper.creaBottoneVaiAlLogin());
 
         RootPanel.get().add(panel);
     }

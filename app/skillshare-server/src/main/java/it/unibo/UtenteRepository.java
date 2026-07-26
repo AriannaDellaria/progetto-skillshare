@@ -113,4 +113,21 @@ public class UtenteRepository {
     ) {
         return trovaPerNomeUtente(nomeUtente) != null;
     }
+
+    /**
+     *  Controlla nome utente e password per il login.
+     */
+    public Utente login(String nomeUtente, String password) {
+        Utente utente = trovaPerNomeUtente(nomeUtente);
+
+        if (utente == null || password == null) {
+            return null;
+        }
+
+        if (!utente.getPassword().equals(password)) {
+            return null;
+        }
+
+        return utente;
+    }
 }

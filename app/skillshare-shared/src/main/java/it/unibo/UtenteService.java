@@ -17,4 +17,13 @@ public interface UtenteService extends RemoteService {
             String email,
             String password
     ) throws IllegalArgumentException;
+
+    /**
+     * Autentica un utente tramite nome utente e password.
+     */
+    Utente login(
+            String nomeUtente,
+            String password
+    );
 }
+
