@@ -2,6 +2,9 @@ package it.unibo;
 
 import com.google.gwt.user.server.rpc.jakarta.RemoteServiceServlet;
 
+import java.util.ArrayList;
+import java.util.List;
+
 /**
  * Esegue sul server le operazioni relative agli annunci.
  */
@@ -47,5 +50,18 @@ public class AnnuncioServiceImpl extends RemoteServiceServlet implements Annunci
                 disponibilita.trim(),
                 controprestazione.trim()
         );
+    }
+
+    /**
+     * Recupera tutti gli annunci creati dall'utente.
+     */
+    @Override
+    public List<Annuncio> mieiAnnunci(String idAutore) {
+
+        if (idAutore == null || idAutore.trim().isEmpty()) {
+            return new ArrayList<>();
+        }
+
+        return annuncioRepository.trovaPerAutore(idAutore);
     }
 }

@@ -3,6 +3,8 @@ package it.unibo;
 import org.mapdb.DB;
 import org.mapdb.Serializer;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentMap;
 
@@ -45,5 +47,26 @@ public class AnnuncioRepository {
         DatabaseCore.commit();
 
         return annuncio;
+    }
+
+    /**
+     * Cerca tutti gli annunci pubblicati da un utente.
+     */
+    public List<Annuncio> trovaPerAutore(String idAutore) {
+
+        List<Annuncio> risultati = new ArrayList<>();
+
+        if (idAutore == null) {
+            return risultati;
+        }
+
+        for (Annuncio annuncio : annunci.values()) {
+
+            if (idAutore.equals(annuncio.getIdAutore())) {
+                risultati.add(annuncio);
+            }
+        }
+
+        return risultati;
     }
 }
