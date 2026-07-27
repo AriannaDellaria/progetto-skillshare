@@ -50,11 +50,17 @@ public class HomeGui {
                 event -> new CreaAnnuncioGui().mostra()
         );
 
+        Button mieiAnnunciButton = new Button("I miei annunci");
+        mieiAnnunciButton.addClickHandler(
+                event -> new MieiAnnunciGui().mostra()
+        );
+
         panel.add(titolo);
         panel.add(benvenuto);
         panel.add(logoutButton);
         panel.add(profiloButton);
         panel.add(creaAnnuncioButton);
+        panel.add(mieiAnnunciButton);
 
         RootPanel.get().add(panel);
     }

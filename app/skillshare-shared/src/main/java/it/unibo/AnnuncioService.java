@@ -2,6 +2,7 @@ package it.unibo;
 
 import com.google.gwt.user.client.rpc.RemoteService;
 import com.google.gwt.user.client.rpc.RemoteServiceRelativePath;
+import java.util.List;
 
 /**
  * Definisce le operazioni sugli annunci.
@@ -19,4 +20,9 @@ public interface AnnuncioService extends RemoteService {
             String disponibilita,
             String controprestazione
     );
+
+    /**
+     * Recupera gli annunci dell'utente autenticato.
+     */
+    List<Annuncio> mieiAnnunci(String idAutore);
 }

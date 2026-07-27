@@ -3,25 +3,6 @@
   xsi:schemaLocation="https://jakarta.ee/xml/ns/jakartaee https://jakarta.ee/xml/ns/jakartaee/web-app_5_0.xsd"
   version="5.0">
 
-	<!-- Servlets -->
-  <servlet>
-    <servlet-name>greetServlet</servlet-name>
-    <servlet-class>it.unibo.GreetingServiceImpl</servlet-class>
-  </servlet>
-  <servlet-mapping>
-    <servlet-name>greetServlet</servlet-name>
-    <url-pattern>/app/greet</url-pattern>
-  </servlet-mapping>
-
-  <servlet>
-    <servlet-name>ingredentiServlet</servlet-name>
-    <servlet-class>it.unibo.IngredientiServiceImpl</servlet-class>
-  </servlet>
-  <servlet-mapping>
-    <servlet-name>ingredentiServlet</servlet-name>
-    <url-pattern>/app/ingredienti</url-pattern>
-  </servlet-mapping>
-
   <!-- Espone il servizio RPC dedicato agli utenti. -->
   <servlet>
     <servlet-name>utenteServlet</servlet-name>
@@ -31,6 +12,19 @@
   <servlet-mapping>
     <servlet-name>utenteServlet</servlet-name>
     <url-pattern>/app/utente</url-pattern>
+  </servlet-mapping>
+
+  <!-- Espone il servizio RPC dedicato agli annunci. -->
+  <servlet>
+    <servlet-name>annuncioServlet</servlet-name>
+    <servlet-class>
+      it.unibo.AnnuncioServiceImpl
+    </servlet-class>
+  </servlet>
+
+  <servlet-mapping>
+    <servlet-name>annuncioServlet</servlet-name>
+    <url-pattern>/app/annuncio</url-pattern>
   </servlet-mapping>
 
 	<!-- Default page to serve -->

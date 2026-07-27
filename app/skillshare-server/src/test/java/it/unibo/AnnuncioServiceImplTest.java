@@ -3,6 +3,8 @@ package it.unibo;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import java.util.List;
+
 import static org.junit.jupiter.api.Assertions.*;
 
 /**
@@ -13,13 +15,21 @@ public class AnnuncioServiceImplTest {
     private AnnuncioServiceImpl service;
 
     /**
-     * Crea il servizio reale prima di ogni test.
+     * Prepara l'ambiente prima di ogni test.
+     * Inizializza il servizio e pulisce gli annunci salvati.
      */
     @BeforeEach
-    public void setUp() {
-        service = new AnnuncioServiceImpl();
-    }
+    void inizializzaTest() {
 
+        service = new AnnuncioServiceImpl();
+
+        DatabaseCore.getDB()
+                .hashMap("annunci")
+                .createOrOpen()
+                .clear();
+
+        DatabaseCore.commit();
+    }
 
     /**
      * Verifica che un utente autenticato
@@ -176,5 +186,46 @@ public class AnnuncioServiceImplTest {
                 "Aiuto matematica",
                 annuncio.getControprestazione()
         );
+    }
+
+    /**
+     * Verifica che un utente possa recuperare i propri annunci.
+     */
+    @Test
+    void mieiAnnunciRestituisceGliAnnunciDellUtente() {
+
+        String idUtente = "utente1";
+
+        service.crea(
+                idUtente,
+                "Java",
+                "Lezioni Java",
+                "Informatica",
+                "Sì",
+                "Inglese"
+        );
+
+        List<Annuncio> annunci = service.mieiAnnunci(idUtente);
+
+        assertEquals(
+                1,
+                annunci.size()
+        );
+
+        assertEquals(
+                "Java",
+                annunci.get(0).getTitolo()
+        );
+    }
+
+    /**
+     * Verifica che un utente senza annunci pubblicati
+     * riceva una lista vuota.
+     */
+    @Test
+    void mieiAnnunciSenzaAnnunciRestituisceListaVuota() {
+        List<Annuncio> annunci = service.mieiAnnunci("utente_senza_annunci");
+        assertNotNull(annunci);
+        assertTrue(annunci.isEmpty());
     }
 }
