@@ -45,11 +45,16 @@ public class HomeGui {
             new ProfiloGui().mostra();
         });
 
+        Button creaAnnuncioButton = new Button("Crea annuncio");
+        creaAnnuncioButton.addClickHandler(
+                event -> new CreaAnnuncioGui().mostra()
+        );
 
         panel.add(titolo);
         panel.add(benvenuto);
         panel.add(logoutButton);
         panel.add(profiloButton);
+        panel.add(creaAnnuncioButton);
 
         RootPanel.get().add(panel);
     }
