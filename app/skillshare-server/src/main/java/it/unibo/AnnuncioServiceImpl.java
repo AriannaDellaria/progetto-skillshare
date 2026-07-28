@@ -64,4 +64,68 @@ public class AnnuncioServiceImpl extends RemoteServiceServlet implements Annunci
 
         return annuncioRepository.trovaPerAutore(idAutore);
     }
+
+    /**
+     * Modifica un annuncio dopo aver controllato i campi.
+     */
+    @Override
+    public Annuncio modificaAnnuncio(
+            String idAnnuncio,
+            String idAutore,
+            String titolo,
+            String categoria,
+            String descrizione,
+            String disponibilita,
+            String controprestazione
+    ) {
+        if (idAnnuncio == null || idAnnuncio.trim().isEmpty()) {
+            throw new IllegalArgumentException(
+                    "Annuncio non valido."
+            );
+        }
+
+        if (idAutore == null || idAutore.trim().isEmpty()) {
+            throw new IllegalArgumentException(
+                    "Utente non valido."
+            );
+        }
+
+        if (titolo == null || titolo.trim().isEmpty()) {
+            throw new IllegalArgumentException(
+                    "Il titolo è obbligatorio."
+            );
+        }
+
+        if (disponibilita == null
+                || disponibilita.trim().isEmpty()) {
+            throw new IllegalArgumentException(
+                    "La disponibilità è obbligatoria."
+            );
+        }
+
+        if (controprestazione == null
+                || controprestazione.trim().isEmpty()) {
+            throw new IllegalArgumentException(
+                    "La controprestazione è obbligatoria."
+            );
+        }
+
+        Annuncio annuncio = annuncioRepository.modificaAnnuncio(
+                idAnnuncio,
+                idAutore,
+                titolo.trim(),
+                categoria == null ? "" : categoria.trim(),
+                descrizione == null ? "" : descrizione.trim(),
+                disponibilita.trim(),
+                controprestazione.trim()
+        );
+
+        if (annuncio == null) {
+            throw new IllegalArgumentException(
+                    "Non puoi modificare questo annuncio."
+            );
+        }
+
+        return annuncio;
+    }
 }

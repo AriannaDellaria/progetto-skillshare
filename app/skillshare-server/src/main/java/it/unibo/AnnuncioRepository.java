@@ -69,4 +69,38 @@ public class AnnuncioRepository {
 
         return risultati;
     }
+
+    /**
+     * Modifica l'annuncio solo se appartiene all'utente.
+     */
+    public Annuncio modificaAnnuncio(
+            String idAnnuncio,
+            String idAutore,
+            String titolo,
+            String categoria,
+            String descrizione,
+            String disponibilita,
+            String controprestazione
+    ) {
+        Annuncio annuncio = annunci.get(idAnnuncio);
+
+        if (annuncio == null) {
+            return null;
+        }
+
+        if (!annuncio.getIdAutore().equals(idAutore)) {
+            return null;
+        }
+
+        annuncio.setTitolo(titolo);
+        annuncio.setCategoria(categoria);
+        annuncio.setDescrizione(descrizione);
+        annuncio.setDisponibilita(disponibilita);
+        annuncio.setControprestazione(controprestazione);
+
+        annunci.put(idAnnuncio, annuncio);
+        DatabaseCore.commit();
+
+        return annuncio;
+    }
 }
