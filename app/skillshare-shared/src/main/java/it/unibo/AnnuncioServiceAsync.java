@@ -41,4 +41,13 @@ public interface AnnuncioServiceAsync {
             String controprestazione,
             AsyncCallback<Annuncio> callback
     );
+
+    /**
+     * Richiede la rimozione di un annuncio.
+     */
+    void rimuovi(
+            String idAnnuncio,
+            String idAutore,
+            AsyncCallback<Boolean> callback
+    );
 }

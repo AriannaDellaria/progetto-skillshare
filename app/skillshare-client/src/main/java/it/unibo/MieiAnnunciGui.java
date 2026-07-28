@@ -1,6 +1,7 @@
 package it.unibo;
 
 import com.google.gwt.core.client.GWT;
+import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.*;
 
@@ -67,12 +68,31 @@ public class MieiAnnunciGui {
 
                             box.add(new Label("Controprestazione: " + annuncio.getControprestazione()));
 
+
                             Button modificaButton = new Button("Modifica");
 
                             modificaButton.addClickHandler(event -> {
                                 new ModificaAnnuncioGui(annuncio).mostra();
                             });
-                            box.add(modificaButton);
+
+                            Button eliminaButton = new Button("Elimina");
+
+                            eliminaButton.addClickHandler(event ->
+                                    rimuoviAnnuncio(
+                                            annuncio,
+                                            utente,
+                                            eliminaButton,
+                                            messaggio
+                                    )
+                            );
+
+                            HorizontalPanel pulsanti = new HorizontalPanel();
+                            pulsanti.setSpacing(5);
+
+                            pulsanti.add(modificaButton);
+                            pulsanti.add(eliminaButton);
+
+                            box.add(pulsanti);
 
                             panel.add(box);
                         }
@@ -88,5 +108,55 @@ public class MieiAnnunciGui {
         );
 
         RootPanel.get().add(panel);
+    }
+
+    /**
+     * Elimina un annuncio dopo la conferma dell'utente.
+     */
+    private void rimuoviAnnuncio(
+            Annuncio annuncio,
+            Utente utente,
+            Button eliminaButton,
+            Label messaggio
+    ) {
+
+        boolean confermato = Window.confirm(
+                "Vuoi eliminare l'annuncio \""
+                        + annuncio.getTitolo()
+                        + "\"?"
+        );
+
+        if (!confermato) {
+            return;
+        }
+
+        eliminaButton.setEnabled(false);
+        messaggio.setText("Eliminazione in corso...");
+
+
+        annuncioService.rimuovi(
+                annuncio.getId(),
+                utente.getId(),
+                new AsyncCallback<Boolean>() {
+
+                    @Override
+                    public void onFailure(Throwable caught) {
+                        eliminaButton.setEnabled(true);
+                        messaggio.setText("Errore durante l'eliminazione.");
+                    }
+
+
+                    @Override
+                    public void onSuccess(Boolean rimosso) {
+                        if (Boolean.TRUE.equals(rimosso)) {
+                            messaggio.setText("Annuncio eliminato correttamente.");
+                            mostra();
+                        } else {
+                            eliminaButton.setEnabled(true);
+                            messaggio.setText("Impossibile eliminare l'annuncio.");
+                        }
+                    }
+                }
+        );
     }
 }

@@ -128,4 +128,16 @@ public class AnnuncioServiceImpl extends RemoteServiceServlet implements Annunci
 
         return annuncio;
     }
+
+    /**
+     * Disattiva un annuncio solo se appartiene all'autore.
+     */
+    @Override
+    public boolean rimuovi(String idAnnuncio, String idAutore) {
+        if (idAnnuncio == null || idAutore == null) {
+            return false;
+        }
+
+        return annuncioRepository.rimuovi(idAnnuncio, idAutore);
+    }
 }

@@ -103,4 +103,27 @@ public class AnnuncioRepository {
 
         return annuncio;
     }
+
+    /**
+     * Cerca un annuncio tramite il suo ID.
+     */
+    public Annuncio trovaPerId(String id) {
+        return annunci.get(id);
+    }
+
+    /**
+     * Disattiva un annuncio senza eliminarlo dal database.
+     */
+    public boolean rimuovi(String idAnnuncio, String idAutore) {
+        Annuncio annuncio = trovaPerId(idAnnuncio);
+
+        if (annuncio == null || !annuncio.getIdAutore().equals(idAutore)) {
+            return false;
+        }
+
+        annunci.remove(idAnnuncio);
+        DatabaseCore.commit();
+
+        return true;
+    }
 }
