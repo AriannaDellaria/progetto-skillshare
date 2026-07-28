@@ -402,4 +402,97 @@ public class AnnuncioServiceImplTest {
                 )
         );
     }
+
+    /**
+     * Verifica che il proprietario possa eliminare
+     * correttamente un proprio annuncio.
+     */
+    @Test
+    void eliminaAnnuncioDelProprietarioRestituisceTrue() {
+
+        Annuncio annuncio = service.crea(
+                "utente1",
+                "Lezioni Java",
+                "Descrizione",
+                "Informatica",
+                "Sì",
+                "Inglese"
+        );
+
+        boolean risultato = service.rimuovi(
+                annuncio.getId(),
+                "utente1"
+        );
+
+        assertTrue(risultato);
+    }
+
+    /**
+     * Verifica che un annuncio eliminato
+     * non venga più mostrato tra gli annunci dell'utente.
+     */
+    @Test
+    void annuncioEliminatoNonCompareNellaLista() {
+
+        String idUtente = "utente1";
+
+
+        Annuncio annuncio = service.crea(
+                idUtente,
+                "Lezioni Java",
+                "Descrizione",
+                "Informatica",
+                "Sì",
+                "Inglese"
+        );
+
+        service.rimuovi(
+                annuncio.getId(),
+                idUtente
+        );
+
+        List<Annuncio> annunci = service.mieiAnnunci(idUtente);
+
+        assertTrue(annunci.isEmpty());
+    }
+
+    /**
+     * Verifica che un utente diverso dal proprietario
+     * non possa eliminare un annuncio.
+     */
+    @Test
+    void eliminaAnnuncioDiAltroUtenteRestituisceFalse() {
+
+        Annuncio annuncio = service.crea(
+                "utente1",
+                "Lezioni Java",
+                "Descrizione",
+                "Informatica",
+                "Sì",
+                "Inglese"
+        );
+
+        boolean risultato = service.rimuovi(
+                annuncio.getId(),
+                "utente2"
+        );
+
+        assertFalse(risultato);
+    }
+
+
+    /**
+     * Verifica che non sia possibile eliminare
+     * un annuncio inesistente.
+     */
+    @Test
+    void eliminaAnnuncioInesistenteRestituisceFalse() {
+
+        boolean risultato = service.rimuovi(
+                "id inesistente",
+                "utente1"
+        );
+
+        assertFalse(risultato);
+    }
 }

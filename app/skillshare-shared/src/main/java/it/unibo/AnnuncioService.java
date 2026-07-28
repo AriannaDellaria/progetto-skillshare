@@ -38,4 +38,12 @@ public interface AnnuncioService extends RemoteService {
             String disponibilita,
             String controprestazione
     );
+
+    /**
+     * Disattiva un annuncio dell'autore.
+     */
+    boolean rimuovi(
+            String idAnnuncio,
+            String idAutore
+    );
 }
