@@ -59,11 +59,20 @@ public class MieiAnnunciGui {
 
                             box.add(new Label("Titolo: " + annuncio.getTitolo()));
 
+                            box.add(new Label("Descrizione: " + annuncio.getDescrizione()));
+
                             box.add(new Label("Categoria: " + annuncio.getCategoria()));
 
                             box.add(new Label("Disponibilità: " + annuncio.getDisponibilita()));
 
                             box.add(new Label("Controprestazione: " + annuncio.getControprestazione()));
+
+                            Button modificaButton = new Button("Modifica");
+
+                            modificaButton.addClickHandler(event -> {
+                                new ModificaAnnuncioGui(annuncio).mostra();
+                            });
+                            box.add(modificaButton);
 
                             panel.add(box);
                         }

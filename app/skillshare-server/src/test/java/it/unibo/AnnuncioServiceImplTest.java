@@ -228,4 +228,178 @@ public class AnnuncioServiceImplTest {
         assertNotNull(annunci);
         assertTrue(annunci.isEmpty());
     }
+
+    /**
+     * Verifica che un utente proprietario
+     * possa modificare correttamente un annuncio.
+     */
+    @Test
+    void modificaAnnuncioAggiornaIValori() {
+
+        String idUtente = "utente1";
+
+        Annuncio annuncio = service.crea(
+                idUtente,
+                "Lezioni Java",
+                "Offro lezioni base",
+                "Informatica",
+                "Sì",
+                "Lezioni inglese"
+        );
+
+        Annuncio aggiornato = service.modificaAnnuncio(
+                annuncio.getId(),
+                idUtente,
+                "Lezioni Java avanzate",
+                "Programmazione",
+                "Offro lezioni avanzate",
+                "No",
+                "Ripetizioni matematica"
+        );
+
+
+        assertNotNull(aggiornato);
+
+        assertEquals(
+                "Lezioni Java avanzate",
+                aggiornato.getTitolo()
+        );
+
+        assertEquals(
+                "Programmazione",
+                aggiornato.getCategoria()
+        );
+
+        assertEquals(
+                "No",
+                aggiornato.getDisponibilita()
+        );
+
+        assertEquals(
+                "Ripetizioni matematica",
+                aggiornato.getControprestazione()
+        );
+    }
+
+
+    /**
+     * Verifica che la modifica di un annuncio inesistente
+     * venga rifiutata.
+     */
+    @Test
+    void modificaAnnuncioInesistenteRestituisceErrore() {
+
+        assertThrows(
+                IllegalArgumentException.class,
+                () -> service.modificaAnnuncio(
+                        "id inesistente",
+                        "utente1",
+                        "Titolo",
+                        "Informatica",
+                        "Descrizione",
+                        "Sì",
+                        "Inglese"
+                )
+        );
+    }
+
+
+    /**
+     * Verifica che un campo obbligatorio vuoto
+     * impedisca la modifica dell'annuncio.
+     */
+    @Test
+    void modificaAnnuncioConTitoloVuotoRestituisceErrore() {
+
+        Annuncio annuncio = service.crea(
+                "utente1",
+                "Titolo originale",
+                "Descrizione valida",
+                "Informatica",
+                "Sì",
+                "Inglese"
+        );
+
+        assertThrows(
+                IllegalArgumentException.class,
+                () -> service.modificaAnnuncio(
+                        annuncio.getId(),
+                        "utente1",
+                        "",
+                        "Informatica",
+                        "Descrizione valida",
+                        "Sì",
+                        "Inglese"
+                )
+        );
+    }
+
+
+    /**
+     * Verifica che i nuovi valori sostituiscano
+     * quelli precedentemente salvati.
+     */
+    @Test
+    void modificaAnnuncioSostituisceIValoriPrecedenti() {
+
+        Annuncio annuncio = service.crea(
+                "utente1",
+                "Titolo vecchio",
+                "Descrizione vecchia",
+                "Informatica",
+                "Sì",
+                "Inglese"
+        );
+
+        Annuncio aggiornato = service.modificaAnnuncio(
+                annuncio.getId(),
+                "utente1",
+                "Titolo nuovo",
+                "Database",
+                "Nuova descrizione",
+                "No",
+                "Matematica"
+        );
+
+        assertEquals(
+                "Titolo nuovo",
+                aggiornato.getTitolo()
+        );
+
+        assertNotEquals(
+                "Titolo vecchio",
+                aggiornato.getTitolo()
+        );
+    }
+
+
+    /**
+     * Verifica che un utente diverso dal proprietario
+     * non possa modificare un annuncio.
+     */
+    @Test
+    void modificaAnnuncioConUtenteDiversoRestituisceErrore() {
+
+        Annuncio annuncio = service.crea(
+                "utente1",
+                "Titolo",
+                "Descrizione",
+                "Informatica",
+                "Sì",
+                "Inglese"
+        );
+
+        assertThrows(
+                IllegalArgumentException.class,
+                () -> service.modificaAnnuncio(
+                        annuncio.getId(),
+                        "utente2",
+                        "Nuovo titolo",
+                        "Informatica",
+                        "Nuova descrizione",
+                        "No",
+                        "Matematica"
+                )
+        );
+    }
 }

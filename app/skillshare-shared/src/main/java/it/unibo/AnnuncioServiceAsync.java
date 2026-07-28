@@ -27,4 +27,18 @@ public interface AnnuncioServiceAsync {
             String idAutore,
             AsyncCallback<List<Annuncio>> callback
     );
+
+    /**
+     * Modifica un annuncio esistente dell'utente.
+     */
+    void modificaAnnuncio(
+            String idAnnuncio,
+            String idAutore,
+            String titolo,
+            String categoria,
+            String descrizione,
+            String disponibilita,
+            String controprestazione,
+            AsyncCallback<Annuncio> callback
+    );
 }
