@@ -71,6 +71,25 @@ public class AnnuncioRepository {
     }
 
     /**
+     * Restituisce gli annunci attivi che soddisfano il criterio di ricerca fornito.
+     */
+    public List<Annuncio> cerca(AnnuncioMatcher matcher) {
+        List<Annuncio> risultati = new ArrayList<>();
+
+        if (matcher == null) {
+            return risultati;
+        }
+
+        for (Annuncio annuncio : annunci.values()) {
+            if (annuncio.isAttivo() && matcher.matches(annuncio)) {
+                risultati.add(annuncio);
+            }
+        }
+
+        return risultati;
+    }
+
+    /**
      * Modifica l'annuncio solo se appartiene all'utente.
      */
     public Annuncio modificaAnnuncio(
