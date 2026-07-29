@@ -126,4 +126,21 @@ public class AnnuncioRepository {
 
         return true;
     }
+
+    /**
+     * Restituisce tutti gli annunci attivi.
+     */
+    public List<Annuncio> trovaAttivi() {
+
+        List<Annuncio> risultati = new ArrayList<>();
+
+        for (Annuncio annuncio : annunci.values()) {
+
+            if (annuncio.isAttivo()) {
+                risultati.add(annuncio);
+            }
+        }
+
+        return risultati;
+    }
 }
