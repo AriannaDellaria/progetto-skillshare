@@ -50,4 +50,11 @@ public interface AnnuncioServiceAsync {
             String idAutore,
             AsyncCallback<Boolean> callback
     );
+
+    /**
+     * Recupera gli annunci attivi.
+     */
+    void trovaAttivi(
+            AsyncCallback<List<Annuncio>> callback
+    );
 }

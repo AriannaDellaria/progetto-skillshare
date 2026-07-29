@@ -495,4 +495,45 @@ public class AnnuncioServiceImplTest {
 
         assertFalse(risultato);
     }
+
+    /**
+     * Verifica che vengano restituiti
+     * gli annunci attivi pubblicati dagli utenti.
+     */
+    @Test
+    void trovaAttiviRestituisceAnnunciDisponibili() {
+
+        service.crea(
+                "utente1",
+                "Lezioni Java",
+                "Programmazione Java",
+                "Informatica",
+                "Sì",
+                "Inglese"
+        );
+
+        List<Annuncio> annunci = service.trovaAttivi();
+
+        assertEquals(
+                1,
+                annunci.size()
+        );
+
+        assertEquals(
+                "Lezioni Java",
+                annunci.get(0).getTitolo()
+        );
+    }
+
+
+    /**
+     * Verifica che senza annunci disponibili
+     * venga restituita una lista vuota.
+     */
+    @Test
+    void trovaAttiviSenzaAnnunciRestituisceListaVuota() {
+        List<Annuncio> annunci = service.trovaAttivi();
+        assertNotNull(annunci);
+        assertTrue(annunci.isEmpty());
+    }
 }

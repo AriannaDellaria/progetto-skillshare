@@ -27,6 +27,12 @@ public interface AnnuncioService extends RemoteService {
     List<Annuncio> mieiAnnunci(String idAutore);
 
     /**
+     * Recupera gli annunci attivi disponibili.
+     */
+    List<Annuncio> trovaAttivi();
+
+
+    /**
      * Modifica un annuncio esistente dell'utente.
      */
     Annuncio modificaAnnuncio(
