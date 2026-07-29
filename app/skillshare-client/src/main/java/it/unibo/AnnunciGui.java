@@ -1,11 +1,11 @@
 package it.unibo;
 
 import com.google.gwt.core.client.GWT;
+import com.google.gwt.event.dom.client.KeyCodes;
+import com.google.gwt.event.dom.client.KeyUpEvent;
+import com.google.gwt.event.dom.client.KeyUpHandler;
 import com.google.gwt.user.client.rpc.AsyncCallback;
-import com.google.gwt.user.client.ui.HTML;
-import com.google.gwt.user.client.ui.Label;
-import com.google.gwt.user.client.ui.RootPanel;
-import com.google.gwt.user.client.ui.VerticalPanel;
+import com.google.gwt.user.client.ui.*;
 
 import java.util.List;
 
@@ -17,13 +17,18 @@ public class AnnunciGui {
     private final AnnuncioServiceAsync annuncioService =
             GWT.create(AnnuncioService.class);
 
+    private Utente utente;
+    private VerticalPanel risultatiPanel;
+    private Label messaggio;
+    private TextBox campoRicerca;
+
     /**
      * Carica gli annunci del marketplace.
      */
     public void mostra() {
         RootPanel.get().clear();
 
-        Utente utente = SessioneUtente.getUtenteCorrente();
+        utente = SessioneUtente.getUtenteCorrente();
 
         // Impedisce l'accesso senza login.
         if (utente == null) {
@@ -35,51 +40,124 @@ public class AnnunciGui {
         panel.setSpacing(12);
 
         HTML titolo = new HTML("<h2>Skill Marketplace</h2>");
-        Label messaggio = new Label("Caricamento annunci...");
 
         panel.add(titolo);
+
+        aggiungiBarraRicerca(panel);
+
+        messaggio = new Label("Caricamento annunci...");
         panel.add(messaggio);
+
+        risultatiPanel = new VerticalPanel();
+        risultatiPanel.setSpacing(12);
+        panel.add(risultatiPanel);
+
         panel.add(
                 NavigationHelper.creaBottoneIndietroHomeUtente()
         );
 
         RootPanel.get().add(panel);
 
+        caricaAnnunciAttivi();
+    }
+
+    // Aggiunge il campo di ricerca e il pulsante al pannello principale.
+    private void aggiungiBarraRicerca(VerticalPanel panel) {
+        campoRicerca = new TextBox();
+
+        campoRicerca.addKeyUpHandler(new KeyUpHandler() {
+            @Override
+            public void onKeyUp(KeyUpEvent event) {
+                if (event.getNativeKeyCode() == KeyCodes.KEY_ENTER) {
+                    eseguiRicerca();
+                }
+            }
+        });
+
+        Button bottoneCerca = new Button("Cerca");
+        bottoneCerca.addClickHandler(event -> eseguiRicerca());
+
+        panel.add(campoRicerca);
+        panel.add(bottoneCerca);
+    }
+
+    // Avvia la ricerca in base al testo inserito, oppure ricarica tutti gli annunci se vuoto.
+    private void eseguiRicerca() {
+        String keyword = campoRicerca.getText().trim();
+
+        if (keyword.isEmpty()) {
+            caricaAnnunciAttivi();
+            return;
+        }
+
+        messaggio.setText("Ricerca in corso...");
+        risultatiPanel.clear();
+
+        annuncioService.cerca(
+                keyword,
+                new AsyncCallback<List<Annuncio>>() {
+
+                    @Override
+                    public void onFailure(Throwable caught) {
+                        messaggio.setText(
+                                "Errore durante la ricerca degli annunci."
+                        );
+                    }
+
+                    @Override
+                    public void onSuccess(List<Annuncio> annunci) {
+                        mostraRisultati(annunci, "Nessun annuncio trovato per questa ricerca.");
+                    }
+                }
+        );
+    }
+
+    // Carica tutti gli annunci attivi.
+    private void caricaAnnunciAttivi() {
+        messaggio.setText("Caricamento annunci...");
+        risultatiPanel.clear();
+
         annuncioService.trovaAttivi(
                 new AsyncCallback<List<Annuncio>>() {
 
                     @Override
                     public void onFailure(Throwable caught) {
-                        messaggio.setText("Errore durante il caricamento degli annunci.");
+                        messaggio.setText(
+                                "Errore durante il caricamento degli annunci."
+                        );
                     }
 
                     @Override
                     public void onSuccess(List<Annuncio> annunci) {
-                        messaggio.setText("");
-
-                        if (annunci == null || annunci.isEmpty()) {
-                            messaggio.setText("Non ci sono annunci disponibili.");
-                            return;
-                        }
-
-                        boolean trovato = false;
-
-                        for (Annuncio annuncio : annunci) {
-                            // Non mostra gli annunci dell'utente corrente.
-                            if (!utente.getId().equals(
-                                    annuncio.getIdAutore()
-                            )) {
-                                panel.add(creaSchedaAnnuncio(annuncio));
-                                trovato = true;
-                            }
-                        }
-
-                        if (!trovato) {
-                            messaggio.setText("Non ci sono annunci di altri utenti.");
-                        }
+                        mostraRisultati(annunci, "Non ci sono annunci disponibili.");
                     }
                 }
         );
+    }
+
+    // Mostra l'elenco degli annunci ricevuti, escludendo quelli dell'utente corrente.
+    private void mostraRisultati(List<Annuncio> annunci, String messaggioListaVuota) {
+        messaggio.setText("");
+        risultatiPanel.clear();
+
+        if (annunci == null || annunci.isEmpty()) {
+            messaggio.setText(messaggioListaVuota);
+            return;
+        }
+
+        boolean trovato = false;
+
+        for (Annuncio annuncio : annunci) {
+            // Non mostra gli annunci dell'utente corrente.
+            if (!utente.getId().equals(annuncio.getIdAutore())) {
+                risultatiPanel.add(creaSchedaAnnuncio(annuncio));
+                trovato = true;
+            }
+        }
+
+        if (!trovato) {
+            messaggio.setText(messaggioListaVuota);
+        }
     }
 
     // Crea la scheda di un annuncio.

@@ -536,4 +536,131 @@ public class AnnuncioServiceImplTest {
         assertNotNull(annunci);
         assertTrue(annunci.isEmpty());
     }
+
+    /**
+     * Verifica che la ricerca trovi un annuncio
+     * il cui titolo contiene la parola chiave.
+     */
+    @Test
+    void cercaConKeywordNelTitoloTrovaAnnuncio() {
+
+        String idUtente = "utente_" + System.nanoTime();
+
+        String keyword = "chitarra" + System.nanoTime();
+
+        Annuncio annuncio = service.crea(
+                idUtente,
+                "Lezioni di " + keyword,
+                "Imparo le basi",
+                "Musica",
+                "Sì",
+                "Cambio"
+        );
+
+        List<Annuncio> risultati = service.cerca(keyword);
+
+        boolean presente = risultati.stream().anyMatch(a -> a.getId().equals(annuncio.getId()));
+
+        assertTrue(presente);
+    }
+
+
+    /**
+     * Verifica che la ricerca trovi un annuncio
+     * la cui categoria contiene la parola chiave.
+     */
+    @Test
+    void cercaConKeywordNellaCategoriaTrovaAnnuncio() {
+
+        String idUtente = "utente_" + System.nanoTime();
+
+        String keyword = "categoriaunica" + System.nanoTime();
+
+        Annuncio annuncio = service.crea(
+                idUtente,
+                "Titolo qualsiasi",
+                "Descrizione",
+                keyword,
+                "Sì",
+                "Cambio"
+        );
+
+        List<Annuncio> risultati = service.cerca(keyword);
+
+        boolean presente = risultati.stream().anyMatch(a -> a.getId().equals(annuncio.getId()));
+
+        assertTrue(presente);
+    }
+
+
+    /**
+     * Verifica che la ricerca non sia sensibile a maiuscole e minuscole.
+     */
+    @Test
+    void cercaConKeywordMaiuscolaTrovaAnnuncioConTitoloMinuscolo() {
+
+        String idUtente =
+                "utente_" + System.nanoTime();
+
+        String keyword =
+                "javascript" + System.nanoTime();
+
+        Annuncio annuncio = service.crea(
+                idUtente,
+                "Corso di " + keyword,
+                "Descrizione",
+                "Informatica",
+                "Sì",
+                "Cambio"
+        );
+
+        List<Annuncio> risultati = service.cerca(keyword.toUpperCase());
+
+        boolean presente = risultati.stream()
+                .anyMatch(a -> a.getId().equals(annuncio.getId()));
+
+        assertTrue(presente);
+    }
+
+
+    /**
+     * Verifica che la ricerca non restituisca
+     * annunci che non corrispondono alla parola chiave.
+     */
+    @Test
+    void cercaConKeywordSenzaCorrispondenzeNonRestituisceAnnunci() {
+
+        String keyword = "paroleinesistenti" + System.nanoTime();
+
+        List<Annuncio> risultati = service.cerca(keyword);
+
+        assertTrue(risultati.isEmpty());
+    }
+
+
+    /**
+     * Verifica che la ricerca richieda una parola chiave.
+     */
+    @Test
+    void cercaSenzaKeywordRestituisceErrore() {
+
+        assertThrows(
+                IllegalArgumentException.class,
+                () -> service.cerca(null)
+        );
+    }
+
+
+    /**
+     * Verifica che la ricerca non accetti
+     * una parola chiave vuota.
+     */
+    @Test
+    void cercaConKeywordVuotaRestituisceErrore() {
+
+        assertThrows(
+                IllegalArgumentException.class,
+                () -> service.cerca("   ")
+        );
+    }
 }

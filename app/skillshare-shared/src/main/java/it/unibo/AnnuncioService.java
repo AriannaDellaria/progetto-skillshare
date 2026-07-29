@@ -31,6 +31,10 @@ public interface AnnuncioService extends RemoteService {
      */
     List<Annuncio> trovaAttivi();
 
+    /**
+     * Cerca gli annunci con una determinata parola chiave.
+     */
+    List<Annuncio> cerca(String keyword);
 
     /**
      * Modifica un annuncio esistente dell'utente.

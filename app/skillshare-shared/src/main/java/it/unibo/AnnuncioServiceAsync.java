@@ -29,6 +29,14 @@ public interface AnnuncioServiceAsync {
     );
 
     /**
+     * Richiede la ricerca degli annunci per parola chiave.
+     */
+    void cerca(
+            String keyword,
+            AsyncCallback<List<Annuncio>> callback
+    );
+
+    /**
      * Modifica un annuncio esistente dell'utente.
      */
     void modificaAnnuncio(

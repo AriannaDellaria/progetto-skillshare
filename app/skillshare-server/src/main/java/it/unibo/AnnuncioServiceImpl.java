@@ -81,6 +81,21 @@ public class AnnuncioServiceImpl extends RemoteServiceServlet implements Annunci
         return annunci;
     }
 
+    /**
+     * Valida la parola chiave e restituisce gli annunci attivi corrispondenti.
+     */
+    @Override
+    public List<Annuncio> cerca(String keyword) {
+        if (keyword == null || keyword.trim().isEmpty()) {
+            throw new IllegalArgumentException(
+                    "Inserisci una parola chiave per la ricerca."
+            );
+        }
+
+        AnnuncioMatcher matcher = new KeywordAnnuncioMatcher(keyword);
+
+        return annuncioRepository.cerca(matcher);
+    }
 
     /**
      * Modifica un annuncio dopo aver controllato i campi.
