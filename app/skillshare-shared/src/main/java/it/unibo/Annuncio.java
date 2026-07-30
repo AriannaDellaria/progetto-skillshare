@@ -17,6 +17,7 @@ public class Annuncio implements Serializable {
     private String disponibilita;
     private String controprestazione;
     private boolean attivo;
+    private long dataPubblicazione;
 
     /**
      * Costruttore richiesto da GWT RPC.
@@ -44,6 +45,7 @@ public class Annuncio implements Serializable {
         this.disponibilita = disponibilita;
         this.controprestazione = controprestazione;
         this.attivo = true;
+        this.dataPubblicazione = System.currentTimeMillis();
     }
 
     public String getId() {
@@ -69,6 +71,9 @@ public class Annuncio implements Serializable {
     }
     public boolean isAttivo() {
         return attivo;
+    }
+    public long getDataPubblicazione() {
+        return dataPubblicazione;
     }
 
     public void setId(String id) {

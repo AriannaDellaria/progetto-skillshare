@@ -45,6 +45,15 @@ public interface AnnuncioServiceAsync {
     );
 
     /**
+     * Richiede l'ordinamento della lista di annunci secondo il criterio scelto.
+     */
+    void ordina(
+            List<Annuncio> annunci,
+            CriterioOrdinamento criterio,
+            AsyncCallback<List<Annuncio>> callback
+    );
+
+    /**
      * Modifica un annuncio esistente dell'utente.
      */
     void modificaAnnuncio(

@@ -9,6 +9,7 @@ import java.util.List;
  */
 @RemoteServiceRelativePath("annuncio")
 public interface AnnuncioService extends RemoteService {
+
     /**
      * Crea un nuovo annuncio.
      */
@@ -41,6 +42,11 @@ public interface AnnuncioService extends RemoteService {
      * di filtro indicati.
      */
     List<Annuncio> filtra(FiltroAnnunci filtro);
+
+    /**
+     * Ordina la lista di annunci indicata secondo il criterio scelto.
+     */
+    List<Annuncio> ordina(List<Annuncio> annunci, CriterioOrdinamento criterio);
 
     /**
      * Modifica un annuncio esistente dell'utente.

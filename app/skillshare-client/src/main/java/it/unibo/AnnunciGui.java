@@ -4,9 +4,12 @@ import com.google.gwt.core.client.GWT;
 import com.google.gwt.event.dom.client.KeyCodes;
 import com.google.gwt.event.dom.client.KeyUpEvent;
 import com.google.gwt.event.dom.client.KeyUpHandler;
+import com.google.gwt.i18n.client.DateTimeFormat;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.*;
 
+import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -15,12 +18,15 @@ import java.util.List;
 public class AnnunciGui {
 
     private final AnnuncioServiceAsync annuncioService = GWT.create(AnnuncioService.class);
+
     private Utente utente;
     private VerticalPanel risultatiPanel;
     private Label messaggio;
     private TextBox campoRicerca;
     private FiltroAnnunci filtroAttuale;
-
+    private ListBox ordinamentoBox;
+    private List<Annuncio> annunciCorrenti = new ArrayList<>();
+    private String messaggioListaVuotaCorrente = "";
 
     /**
      * Carica gli annunci del marketplace.
@@ -67,6 +73,7 @@ public class AnnunciGui {
 
         panel.add(titolo);
         aggiungiBarraRicerca(panel);
+        aggiungiMenuOrdinamento(panel);
 
         Button filtriButton = new Button("Filtri");
         filtriButton.addClickHandler(event -> new FiltriGui(filtroAttuale).mostra());
@@ -104,6 +111,51 @@ public class AnnunciGui {
 
         panel.add(campoRicerca);
         panel.add(bottoneCerca);
+    }
+
+    // Aggiunge il menu a tendina per selezionare il criterio di ordinamento.
+    private void aggiungiMenuOrdinamento(VerticalPanel panel) {
+        ordinamentoBox = new ListBox();
+        ordinamentoBox.addItem("Ordina per...");
+
+        for (CriterioOrdinamento criterio : CriterioOrdinamento.values()) {
+            ordinamentoBox.addItem(criterio.getEtichetta());
+        }
+
+        ordinamentoBox.addChangeHandler(event -> riordinaERimostra());
+
+        panel.add(ordinamentoBox);
+    }
+
+    // Richiede al server di ordinare la lista di annunci già ricevuta
+    // secondo il criterio selezionato, e mostra il risultato.
+    private void riordinaERimostra() {
+        String etichettaSelezionata = ordinamentoBox.getSelectedValue();
+        CriterioOrdinamento criterio = CriterioOrdinamento.daEtichetta(etichettaSelezionata);
+
+        if (criterio == null) {
+            renderizzaAnnunci(annunciCorrenti, messaggioListaVuotaCorrente);
+            return;
+        }
+
+        annuncioService.ordina(
+                annunciCorrenti,
+                criterio,
+                new AsyncCallback<List<Annuncio>>() {
+
+                    @Override
+                    public void onFailure(Throwable caught) {
+                        messaggio.setText(
+                                "Errore durante l'ordinamento degli annunci."
+                        );
+                    }
+
+                    @Override
+                    public void onSuccess(List<Annuncio> annunciOrdinati) {
+                        renderizzaAnnunci(annunciOrdinati, messaggioListaVuotaCorrente);
+                    }
+                }
+        );
     }
 
     // Avvia la ricerca in base al testo inserito, oppure ricarica tutti gli annunci se vuoto.
@@ -186,8 +238,26 @@ public class AnnunciGui {
         );
     }
 
-    // Mostra l'elenco degli annunci ricevuti, escludendo quelli dell'utente corrente.
+    // Mostra l'elenco degli annunci ricevuti dal server, salvando lo
+    // stato corrente per permettere un successivo riordino.
     private void mostraRisultati(List<Annuncio> annunci, String messaggioListaVuota) {
+        annunciCorrenti = annunci == null ? new ArrayList<>() : annunci;
+        messaggioListaVuotaCorrente = messaggioListaVuota;
+
+        String etichettaSelezionata = ordinamentoBox != null
+                ? ordinamentoBox.getSelectedValue() : null;
+        CriterioOrdinamento criterio = CriterioOrdinamento.daEtichetta(etichettaSelezionata);
+
+        if (criterio != null) {
+            riordinaERimostra();
+        } else {
+            renderizzaAnnunci(annunciCorrenti, messaggioListaVuota);
+        }
+    }
+
+    // Disegna a schermo la lista di annunci già ordinata, escludendo
+    // quelli dell'utente corrente.
+    private void renderizzaAnnunci(List<Annuncio> annunci, String messaggioListaVuota) {
         messaggio.setText("");
         risultatiPanel.clear();
 
@@ -199,7 +269,6 @@ public class AnnunciGui {
         boolean trovato = false;
 
         for (Annuncio annuncio : annunci) {
-            // Non mostra gli annunci dell'utente corrente.
             if (!utente.getId().equals(annuncio.getIdAutore())) {
                 risultatiPanel.add(creaSchedaAnnuncio(annuncio));
                 trovato = true;
@@ -229,12 +298,21 @@ public class AnnunciGui {
 
         Label controprestazione = new Label("Controprestazione: " + annuncio.getControprestazione());
 
+        Label dataPubblicazione = new Label("Pubblicato il: " + formattaData(annuncio.getDataPubblicazione()));
+
         scheda.add(titolo);
         scheda.add(descrizione);
         scheda.add(categoria);
         scheda.add(disponibilita);
         scheda.add(controprestazione);
+        scheda.add(dataPubblicazione);
 
         return scheda;
+    }
+
+    // Converte il timestamp di pubblicazione in una data leggibile (gg/mm/aaaa).
+    private String formattaData(long timestamp) {
+        DateTimeFormat formato = DateTimeFormat.getFormat("dd/MM/yyyy");
+        return formato.format(new Date(timestamp));
     }
 }

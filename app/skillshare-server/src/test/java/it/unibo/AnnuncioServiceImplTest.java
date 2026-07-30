@@ -925,4 +925,123 @@ public class AnnuncioServiceImplTest {
                 () -> service.filtra(null)
         );
     }
+
+    /**
+     * Verifica che il metodo ordina applichi correttamente
+     * il criterio titolo crescente.
+     */
+    @Test
+    void ordinaConTitoloCrescenteOrdinaAlfabeticamente() {
+
+        List<Annuncio> annunci = new java.util.ArrayList<>();
+        annunci.add(service.crea(
+                "utente1", "Zebra", "Descrizione",
+                "Categoria", "Sì", "Cambio"
+        ));
+        annunci.add(service.crea(
+                "utente1", "Alfa", "Descrizione",
+                "Categoria", "Sì", "Cambio"
+        ));
+
+        List<Annuncio> ordinati = service.ordina(
+                annunci,
+                CriterioOrdinamento.TITOLO_CRESCENTE
+        );
+
+        assertEquals("Alfa", ordinati.get(0).getTitolo());
+        assertEquals("Zebra", ordinati.get(1).getTitolo());
+    }
+
+    /**
+     * Verifica che il metodo ordina applichi correttamente
+     * il criterio titolo decrescente.
+     */
+    @Test
+    void ordinaConTitoloDecrescenteOrdinaAlContrario() {
+
+        List<Annuncio> annunci = new java.util.ArrayList<>();
+        annunci.add(service.crea(
+                "utente1", "Alfa", "Descrizione",
+                "Categoria", "Sì", "Cambio"
+        ));
+        annunci.add(service.crea(
+                "utente1", "Zebra", "Descrizione",
+                "Categoria", "Sì", "Cambio"
+        ));
+
+        List<Annuncio> ordinati = service.ordina(
+                annunci,
+                CriterioOrdinamento.TITOLO_DECRESCENTE
+        );
+
+        assertEquals("Zebra", ordinati.get(0).getTitolo());
+        assertEquals("Alfa", ordinati.get(1).getTitolo());
+    }
+
+    /**
+     * Verifica che senza un criterio la lista venga restituita invariata.
+     */
+    @Test
+    void ordinaConCriterioNullRestituisceListaInvariata() {
+
+        List<Annuncio> annunci = new java.util.ArrayList<>();
+        annunci.add(service.crea(
+                "utente1", "Zebra", "Descrizione",
+                "Categoria", "Sì", "Cambio"
+        ));
+        annunci.add(service.crea(
+                "utente1", "Alfa", "Descrizione",
+                "Categoria", "Sì", "Cambio"
+        ));
+
+        List<Annuncio> ordinati = service.ordina(annunci, null);
+
+        assertEquals("Zebra", ordinati.get(0).getTitolo());
+        assertEquals("Alfa", ordinati.get(1).getTitolo());
+    }
+
+    /**
+     * Verifica che ordinare una lista nulla restituisca
+     * una lista vuota, senza sollevare eccezioni.
+     */
+    @Test
+    void ordinaConListaNullRestituisceListaVuota() {
+
+        List<Annuncio> ordinati = service.ordina(
+                null,
+                CriterioOrdinamento.TITOLO_CRESCENTE
+        );
+
+        assertNotNull(ordinati);
+        assertTrue(ordinati.isEmpty());
+    }
+
+    /**
+     * Verifica che ordina restituisca una nuova lista ordinata
+     * senza modificare la lista originale passata come parametro.
+     */
+    @Test
+    void ordinaNonModificaListaOriginale() {
+
+        Annuncio zebra = service.crea(
+                "utente1", "Zebra", "Descrizione",
+                "Categoria", "Sì", "Cambio"
+        );
+        Annuncio alfa = service.crea(
+                "utente1", "Alfa", "Descrizione",
+                "Categoria", "Sì", "Cambio"
+        );
+
+        List<Annuncio> originale = new java.util.ArrayList<>();
+        originale.add(zebra);
+        originale.add(alfa);
+
+        service.ordina(
+                originale,
+                CriterioOrdinamento.TITOLO_CRESCENTE
+        );
+
+        assertEquals("Zebra", originale.get(0).getTitolo());
+        assertEquals("Alfa", originale.get(1).getTitolo());
+    }
 }
