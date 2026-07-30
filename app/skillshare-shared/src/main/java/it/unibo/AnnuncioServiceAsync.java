@@ -37,6 +37,14 @@ public interface AnnuncioServiceAsync {
     );
 
     /**
+     * Richiede gli annunci che soddisfano i criteri di filtro.
+     */
+    void filtra(
+            FiltroAnnunci filtro,
+            AsyncCallback<List<Annuncio>> callback
+    );
+
+    /**
      * Modifica un annuncio esistente dell'utente.
      */
     void modificaAnnuncio(

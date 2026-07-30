@@ -3,7 +3,9 @@ package it.unibo;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -661,6 +663,266 @@ public class AnnuncioServiceImplTest {
         assertThrows(
                 IllegalArgumentException.class,
                 () -> service.cerca("   ")
+        );
+    }
+
+    /**
+     * Verifica che il filtro per categoria trovi
+     * un annuncio con quella categoria.
+     */
+    @Test
+    void filtraConCategoriaSelezionataTrovaAnnuncio() {
+
+        service.crea(
+                "utente1",
+                "Lezioni di chitarra",
+                "Imparo le basi",
+                "Musica",
+                "Sì",
+                "Cambio"
+        );
+
+        Set<String> categorie = new HashSet<>();
+        categorie.add("Musica");
+
+        FiltroAnnunci filtro = new FiltroAnnunci();
+        filtro.setCategorieSelezionate(categorie);
+
+        List<Annuncio> risultati = service.filtra(filtro);
+
+        assertEquals(
+                1,
+                risultati.size()
+        );
+
+        assertEquals(
+                "Lezioni di chitarra",
+                risultati.get(0).getTitolo()
+        );
+    }
+
+    /**
+     * Verifica che il filtro per categoria non restituisca
+     * annunci con categoria diversa da quella selezionata.
+     */
+    @Test
+    void filtraConCategoriaDiversaNonTrovaAnnuncio() {
+
+        service.crea(
+                "utente1",
+                "Lezioni di chitarra",
+                "Imparo le basi",
+                "Musica",
+                "Sì",
+                "Cambio"
+        );
+
+        Set<String> categorie = new HashSet<>();
+        categorie.add("Informatica");
+
+        FiltroAnnunci filtro = new FiltroAnnunci();
+        filtro.setCategorieSelezionate(categorie);
+
+        List<Annuncio> risultati = service.filtra(filtro);
+
+        assertTrue(risultati.isEmpty());
+    }
+
+    /**
+     * Verifica che il campo "Altro" trovi un annuncio
+     * la cui categoria corrisponde al testo inserito.
+     */
+    @Test
+    void filtraConAltroCategoriaTrovaAnnuncio() {
+
+        service.crea(
+                "utente1",
+                "Corso di fotografia",
+                "Descrizione",
+                "Fotografia",
+                "Sì",
+                "Cambio"
+        );
+
+        FiltroAnnunci filtro = new FiltroAnnunci();
+        filtro.setAltroCategoria("fotografia");
+
+        List<Annuncio> risultati = service.filtra(filtro);
+
+        assertEquals(
+                1,
+                risultati.size()
+        );
+    }
+
+    /**
+     * Verifica che il filtro per disponibilità trovi
+     * solo gli annunci con la disponibilità richiesta.
+     */
+    @Test
+    void filtraConDisponibilitaTrovaSoloAnnunciCorrispondenti() {
+
+        service.crea(
+                "utente1",
+                "Lezioni Java",
+                "Descrizione",
+                "Informatica",
+                "Sì",
+                "Inglese"
+        );
+
+        service.crea(
+                "utente1",
+                "Lezioni SQL",
+                "Descrizione",
+                "Informatica",
+                "No",
+                "Inglese"
+        );
+
+        FiltroAnnunci filtro = new FiltroAnnunci();
+        filtro.setDisponibilitaSelezionata("Sì");
+
+        List<Annuncio> risultati = service.filtra(filtro);
+
+        assertEquals(
+                1,
+                risultati.size()
+        );
+
+        assertEquals(
+                "Lezioni Java",
+                risultati.get(0).getTitolo()
+        );
+    }
+
+    /**
+     * Verifica che categoria e disponibilità combinate
+     * restituiscano solo gli annunci che soddisfano entrambi i criteri.
+     */
+    @Test
+    void filtraConCategoriaEDisponibilitaCombinateRestituisceSoloCorrispondenze() {
+
+        service.crea(
+                "utente1",
+                "Lezioni Java",
+                "Descrizione",
+                "Informatica",
+                "Sì",
+                "Inglese"
+        );
+
+        service.crea(
+                "utente1",
+                "Lezioni SQL",
+                "Descrizione",
+                "Informatica",
+                "No",
+                "Inglese"
+        );
+
+        service.crea(
+                "utente1",
+                "Lezioni di chitarra",
+                "Descrizione",
+                "Musica",
+                "Sì",
+                "Cambio"
+        );
+
+        Set<String> categorie = new HashSet<>();
+        categorie.add("Informatica");
+
+        FiltroAnnunci filtro = new FiltroAnnunci();
+        filtro.setCategorieSelezionate(categorie);
+        filtro.setDisponibilitaSelezionata("Sì");
+
+        List<Annuncio> risultati = service.filtra(filtro);
+
+        assertEquals(
+                1,
+                risultati.size()
+        );
+
+        assertEquals(
+                "Lezioni Java",
+                risultati.get(0).getTitolo()
+        );
+    }
+
+    /**
+     * Verifica che senza alcun criterio impostato
+     * il filtro restituisca tutti gli annunci attivi.
+     */
+    @Test
+    void filtraConFiltroVuotoRestituisceTuttiGliAnnunciAttivi() {
+
+        service.crea(
+                "utente1",
+                "Lezioni Java",
+                "Descrizione",
+                "Informatica",
+                "Sì",
+                "Inglese"
+        );
+
+        service.crea(
+                "utente1",
+                "Lezioni di chitarra",
+                "Descrizione",
+                "Musica",
+                "No",
+                "Cambio"
+        );
+
+        FiltroAnnunci filtro = new FiltroAnnunci();
+
+        List<Annuncio> risultati = service.filtra(filtro);
+
+        assertEquals(
+                2,
+                risultati.size()
+        );
+    }
+
+    /**
+     * Verifica che un annuncio disattivato non venga
+     * restituito nemmeno se soddisfa i criteri di filtro.
+     */
+    @Test
+    void filtraNonRestituisceAnnunciEliminati() {
+
+        Annuncio annuncio = service.crea(
+                "utente1",
+                "Lezioni Java",
+                "Descrizione",
+                "Informatica",
+                "Sì",
+                "Inglese"
+        );
+
+        service.rimuovi(annuncio.getId(), "utente1");
+
+        Set<String> categorie = new HashSet<>();
+        categorie.add("Informatica");
+
+        FiltroAnnunci filtro = new FiltroAnnunci();
+        filtro.setCategorieSelezionate(categorie);
+
+        List<Annuncio> risultati = service.filtra(filtro);
+
+        assertTrue(risultati.isEmpty());
+    }
+
+    /**
+     * Verifica che il filtro richieda un oggetto FiltroAnnunci valido.
+     */
+    @Test
+    void filtraConFiltroNullRestituisceErrore() {
+
+        assertThrows(
+                IllegalArgumentException.class,
+                () -> service.filtra(null)
         );
     }
 }

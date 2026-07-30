@@ -98,6 +98,23 @@ public class AnnuncioServiceImpl extends RemoteServiceServlet implements Annunci
     }
 
     /**
+     * Restituisce gli annunci attivi che soddisfano i criteri di
+     * filtro indicati, delegando il criterio a FiltroAnnuncioMatcher.
+     */
+    @Override
+    public List<Annuncio> filtra(FiltroAnnunci filtro) {
+        if (filtro == null) {
+            throw new IllegalArgumentException(
+                    "Filtro non valido."
+            );
+        }
+
+        AnnuncioMatcher matcher = new FiltroAnnuncioMatcher(filtro);
+
+        return annuncioRepository.cerca(matcher);
+    }
+
+    /**
      * Modifica un annuncio dopo aver controllato i campi.
      */
     @Override
