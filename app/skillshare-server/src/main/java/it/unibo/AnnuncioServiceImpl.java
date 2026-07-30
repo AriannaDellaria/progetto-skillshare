@@ -4,6 +4,7 @@ import com.google.gwt.user.server.rpc.jakarta.RemoteServiceServlet;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 
 /**
@@ -112,6 +113,28 @@ public class AnnuncioServiceImpl extends RemoteServiceServlet implements Annunci
         AnnuncioMatcher matcher = new FiltroAnnuncioMatcher(filtro);
 
         return annuncioRepository.cerca(matcher);
+    }
+
+    /**
+     * Ordina la lista di annunci indicata secondo il criterio scelto,
+     * delegando il confronto a ComparatorOrdinamento. Se il criterio
+     * è nullo o la lista è vuota, restituisce la lista invariata.
+     */
+    @Override
+    public List<Annuncio> ordina(List<Annuncio> annunci, CriterioOrdinamento criterio) {
+        if (annunci == null) {
+            return Collections.emptyList();
+        }
+
+        Comparator<Annuncio> comparator = ComparatorOrdinamento.perCriterio(criterio);
+
+        List<Annuncio> risultato = new ArrayList<>(annunci);
+
+        if (comparator != null) {
+            risultato.sort(comparator);
+        }
+
+        return risultato;
     }
 
     /**
