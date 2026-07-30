@@ -14,18 +14,42 @@ import java.util.List;
  */
 public class AnnunciGui {
 
-    private final AnnuncioServiceAsync annuncioService =
-            GWT.create(AnnuncioService.class);
-
+    private final AnnuncioServiceAsync annuncioService = GWT.create(AnnuncioService.class);
     private Utente utente;
     private VerticalPanel risultatiPanel;
     private Label messaggio;
     private TextBox campoRicerca;
+    private FiltroAnnunci filtroAttuale;
+
 
     /**
      * Carica gli annunci del marketplace.
      */
     public void mostra() {
+        filtroAttuale = null;
+        inizializza();
+        caricaAnnunciAttivi();
+    }
+
+    /**
+     * Carica gli annunci del marketplace applicando i filtri indicati.
+     */
+    public void mostraConFiltri(FiltroAnnunci filtro) {
+        filtroAttuale = filtro;
+        inizializza();
+
+        if (filtro == null || filtro.isVuoto()) {
+            caricaAnnunciAttivi();
+        } else {
+            applicaFiltri(filtro);
+        }
+    }
+
+    /**
+     * Costruisce la struttura comune della pagina (barra di ricerca,
+     * bottoni, pannello risultati), condivisa tra mostra() e mostraConFiltri().
+     */
+    private void inizializza() {
         RootPanel.get().clear();
 
         utente = SessioneUtente.getUtenteCorrente();
@@ -42,8 +66,11 @@ public class AnnunciGui {
         HTML titolo = new HTML("<h2>Skill Marketplace</h2>");
 
         panel.add(titolo);
-
         aggiungiBarraRicerca(panel);
+
+        Button filtriButton = new Button("Filtri");
+        filtriButton.addClickHandler(event -> new FiltriGui(filtroAttuale).mostra());
+        panel.add(filtriButton);
 
         messaggio = new Label("Caricamento annunci...");
         panel.add(messaggio);
@@ -57,8 +84,6 @@ public class AnnunciGui {
         );
 
         RootPanel.get().add(panel);
-
-        caricaAnnunciAttivi();
     }
 
     // Aggiunge il campo di ricerca e il pulsante al pannello principale.
@@ -107,6 +132,32 @@ public class AnnunciGui {
                     @Override
                     public void onSuccess(List<Annuncio> annunci) {
                         mostraRisultati(annunci, "Nessun annuncio trovato per questa ricerca.");
+                    }
+                }
+        );
+    }
+
+    /**
+     * Carica gli annunci del marketplace applicando i criteri di filtro.
+     */
+    private void applicaFiltri(FiltroAnnunci filtro) {
+        messaggio.setText("Applicazione filtri in corso...");
+        risultatiPanel.clear();
+
+        annuncioService.filtra(
+                filtro,
+                new AsyncCallback<List<Annuncio>>() {
+
+                    @Override
+                    public void onFailure(Throwable caught) {
+                        messaggio.setText(
+                                "Errore durante l'applicazione dei filtri."
+                        );
+                    }
+
+                    @Override
+                    public void onSuccess(List<Annuncio> annunci) {
+                        mostraRisultati(annunci, "Nessun annuncio corrisponde ai filtri selezionati.");
                     }
                 }
         );

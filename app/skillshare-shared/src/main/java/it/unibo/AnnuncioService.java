@@ -37,6 +37,12 @@ public interface AnnuncioService extends RemoteService {
     List<Annuncio> cerca(String keyword);
 
     /**
+     * Restituisce gli annunci attivi che soddisfano i criteri
+     * di filtro indicati.
+     */
+    List<Annuncio> filtra(FiltroAnnunci filtro);
+
+    /**
      * Modifica un annuncio esistente dell'utente.
      */
     Annuncio modificaAnnuncio(

@@ -55,6 +55,11 @@ public class CreaAnnuncioGui {
                 "Es. Informatica"
         );
 
+        Label categorieSuggeriteLabel = new Label(
+                "Categorie consigliate: "
+                        + String.join(", ", CategorieSuggerite.elenco())
+        );
+
         // Permette di indicare se l'annuncio è disponibile.
         ListBox disponibilitaBox = new ListBox();
         disponibilitaBox.addItem("Seleziona...");
@@ -158,6 +163,7 @@ public class CreaAnnuncioGui {
 
         panel.add(new Label("Categoria"));
         panel.add(categoriaBox);
+        panel.add(categorieSuggeriteLabel);
 
         panel.add(new Label("Disponibilità *"));
         panel.add(disponibilitaBox);
