@@ -36,4 +36,6 @@ public interface UtenteServiceAsync {
             List<String> tagCompetenze,
             AsyncCallback<Utente> callback
     );
+
+    void trovaPerId(String id, AsyncCallback<Utente> callback);
 }

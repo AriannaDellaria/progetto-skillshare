@@ -37,5 +37,9 @@ public interface UtenteService extends RemoteService {
             String fotoProfilo,
             List<String> tagCompetenze
     );
+    /**
+     * Recupera un utente tramite id, per scopi di visualizzazione.
+     */
+    Utente trovaPerId(String id);
 }
 

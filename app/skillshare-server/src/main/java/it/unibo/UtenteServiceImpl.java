@@ -1,7 +1,6 @@
 package it.unibo;
 
 import com.google.gwt.user.server.rpc.jakarta.RemoteServiceServlet;
-
 import java.util.ArrayList;
 import java.util.List;
 
@@ -90,5 +89,10 @@ public class UtenteServiceImpl extends RemoteServiceServlet implements UtenteSer
                 fotoProfilo.trim(),
                 tagCompetenze
         );
+    }
+
+    @Override
+    public Utente trovaPerId(String id) {
+        return utenteRepository.trovaPerId(id);
     }
 }
