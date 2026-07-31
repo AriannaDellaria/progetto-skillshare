@@ -2,6 +2,9 @@ package it.unibo;
 
 import org.mapdb.DB;
 import org.mapdb.Serializer;
+
+import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentMap;
 
@@ -24,7 +27,9 @@ public class RichiestaScambioRepository {
             String idAnnuncio,
             String idMittente,
             String idProprietario,
-            String messaggio
+            String messaggio,
+            String titoloAnnuncio,
+            String nomeMittente
     ) {
         String id = UUID.randomUUID().toString();
 
@@ -33,7 +38,9 @@ public class RichiestaScambioRepository {
                 idAnnuncio,
                 idMittente,
                 idProprietario,
-                messaggio
+                messaggio,
+                titoloAnnuncio,
+                nomeMittente
         );
 
         richieste.put(id, richiesta);
@@ -48,5 +55,24 @@ public class RichiestaScambioRepository {
     public RichiestaScambio trovaPerId(String id) {
         return richieste.get(id);
     }
+
+    public List<RichiestaScambio> trovaPerProprietario(String idProprietario) {
+
+        List<RichiestaScambio> risultati = new ArrayList<>();
+
+        if (idProprietario == null) {
+            return risultati;
+        }
+
+        for (RichiestaScambio richiesta : richieste.values()) {
+            if (idProprietario.equals(richiesta.getIdProprietario())) {
+                risultati.add(richiesta);
+            }
+        }
+
+        return risultati;
+    }
+
+
 }
 

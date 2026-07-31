@@ -2,6 +2,8 @@ package it.unibo;
 
 import com.google.gwt.user.client.rpc.AsyncCallback;
 
+import java.util.List;
+
 /**
  * Versione asincrona del servizio richieste di scambio.
  */
@@ -15,5 +17,10 @@ public interface RichiestaScambioServiceAsync {
             String idMittente,
             String messaggio,
             AsyncCallback<RichiestaScambio> callback
+    );
+
+    void richiesteRicevute(
+            String idProprietario,
+            AsyncCallback<List<RichiestaScambio>> callback
     );
 }

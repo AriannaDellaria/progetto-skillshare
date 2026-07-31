@@ -2,6 +2,9 @@ package it.unibo;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+
+import java.util.List;
+
 import static org.junit.jupiter.api.Assertions.*;
 
 class RichiestaScambioRepositoryTest {
@@ -25,7 +28,9 @@ class RichiestaScambioRepositoryTest {
                 "annuncio-1",
                 "mittente-1",
                 "proprietario-1",
-                "Messaggio"
+                "Messaggio",
+                "Titolo annuncio",
+                "Nome Mittente"
         );
 
         RichiestaScambio trovata =
@@ -45,5 +50,18 @@ class RichiestaScambioRepositoryTest {
                 richiestaScambioRepository.trovaPerId("id-inesistente");
 
         assertNull(trovata);
+    }
+
+    /**
+     * Verifica che trovaPerProprietario restituisca una lista vuota
+     * quando l'id passato è null.
+     */
+    @Test
+    void trovaPerProprietarioConIdNullRestituisceListaVuota() {
+
+        List<RichiestaScambio> risultati =
+                richiestaScambioRepository.trovaPerProprietario(null);
+
+        assertTrue(risultati.isEmpty());
     }
 }
