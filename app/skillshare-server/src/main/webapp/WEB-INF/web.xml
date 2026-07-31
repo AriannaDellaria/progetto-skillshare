@@ -27,6 +27,16 @@
     <url-pattern>/app/annuncio</url-pattern>
   </servlet-mapping>
 
+  <!-- Espone il servizio RPC dedicato alle richieste di scambio. -->
+  <servlet>
+    <servlet-name>richiestaScambioServlet</servlet-name>
+    <servlet-class>it.unibo.RichiestaScambioServiceImpl</servlet-class>
+  </servlet>
+  <servlet-mapping>
+    <servlet-name>richiestaScambioServlet</servlet-name>
+    <url-pattern>/app/richiestaScambio</url-pattern>
+  </servlet-mapping>
+
 	<!-- Default page to serve -->
   <welcome-file-list>
     <welcome-file>index.html</welcome-file>

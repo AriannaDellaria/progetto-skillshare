@@ -7,7 +7,6 @@ import com.google.gwt.event.dom.client.KeyUpHandler;
 import com.google.gwt.i18n.client.DateTimeFormat;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.*;
-
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -18,6 +17,7 @@ import java.util.List;
 public class AnnunciGui {
 
     private final AnnuncioServiceAsync annuncioService = GWT.create(AnnuncioService.class);
+    private final UtenteServiceAsync utenteService = GWT.create(UtenteService.class);
 
     private Utente utente;
     private VerticalPanel risultatiPanel;
@@ -292,6 +292,21 @@ public class AnnunciGui {
 
         Label descrizione = new Label(annuncio.getDescrizione());
 
+        Label autore = new Label("Pubblicato da: ...");
+        scheda.add(autore);
+
+        utenteService.trovaPerId(annuncio.getIdAutore(), new AsyncCallback<Utente>() {
+            @Override
+            public void onFailure(Throwable caught) {
+                autore.setText("Pubblicato da: utente sconosciuto");
+            }
+
+            @Override
+            public void onSuccess(Utente risultato) {
+                autore.setText("Pubblicato da: " + (risultato != null ? risultato.getNomeUtente() : "utente sconosciuto"));
+            }
+        });
+
         Label categoria = new Label("Categoria: " + annuncio.getCategoria());
 
         Label disponibilita = new Label("Disponibilità: " + annuncio.getDisponibilita());
@@ -306,6 +321,12 @@ public class AnnunciGui {
         scheda.add(disponibilita);
         scheda.add(controprestazione);
         scheda.add(dataPubblicazione);
+
+        Button richiediScambioButton = new Button("Invia richiesta di scambio");
+        richiediScambioButton.addClickHandler(
+                event -> new RichiediScambioGui(annuncio).mostra()
+        );
+        scheda.add(richiediScambioButton);
 
         return scheda;
     }
