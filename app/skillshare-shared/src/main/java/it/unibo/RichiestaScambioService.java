@@ -1,5 +1,6 @@
 package it.unibo;
 
+import java.util.List;
 import com.google.gwt.user.client.rpc.RemoteService;
 import com.google.gwt.user.client.rpc.RemoteServiceRelativePath;
 
@@ -17,4 +18,6 @@ public interface RichiestaScambioService extends RemoteService {
             String idMittente,
             String messaggio
     )throws IllegalArgumentException;
+
+    List<RichiestaScambio> richiesteRicevute(String idProprietario);
 }

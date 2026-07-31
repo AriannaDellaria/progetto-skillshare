@@ -2,6 +2,9 @@ package it.unibo;
 
 import com.google.gwt.user.server.rpc.jakarta.RemoteServiceServlet;
 
+import java.util.ArrayList;
+import java.util.List;
+
 /**
  * Esegue sul server le operazioni relative alle richieste di scambio.
  */
@@ -9,6 +12,7 @@ public class RichiestaScambioServiceImpl extends RemoteServiceServlet implements
 
     private final RichiestaScambioRepository richiestaScambioRepository = new RichiestaScambioRepository();
     private final AnnuncioRepository annuncioRepository = new AnnuncioRepository();
+    private final UtenteRepository utenteRepository = new UtenteRepository();
 
     /**
      * Valida i dati e crea una nuova richiesta di scambio.
@@ -49,11 +53,26 @@ public class RichiestaScambioServiceImpl extends RemoteServiceServlet implements
             throw new IllegalArgumentException("Questo annuncio non è attualmente disponibile.");
         }
 
+        Utente mittente = utenteRepository.trovaPerId(idMittente);
+        String nomeMittente = mittente != null ? mittente.getNomeUtente() : idMittente;
+
         return richiestaScambioRepository.crea(
                 idAnnuncio,
                 idMittente,
                 annuncio.getIdAutore(),
-                messaggio.trim()
+                messaggio.trim(),
+                annuncio.getTitolo(),
+                nomeMittente
         );
+    }
+
+    @Override
+    public List<RichiestaScambio> richiesteRicevute(String idProprietario) {
+
+        if (idProprietario == null || idProprietario.trim().isEmpty()) {
+            return new ArrayList<>();
+        }
+
+        return richiestaScambioRepository.trovaPerProprietario(idProprietario);
     }
 }

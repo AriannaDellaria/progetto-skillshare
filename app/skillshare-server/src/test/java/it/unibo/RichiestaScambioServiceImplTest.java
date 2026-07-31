@@ -2,6 +2,9 @@ package it.unibo;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+
+import java.util.List;
+
 import static org.junit.jupiter.api.Assertions.*;
 
 /**
@@ -46,6 +49,8 @@ public class RichiestaScambioServiceImplTest {
         assertEquals("mittente1", richiesta.getIdMittente());
         assertEquals("autore1", richiesta.getIdProprietario());
         assertEquals("Mi interessa lo scambio", richiesta.getMessaggio());
+        assertEquals("Lezioni Java", richiesta.getTitoloAnnuncio());
+        assertNotNull(richiesta.getNomeMittente());
     }
 
     /**
@@ -179,5 +184,52 @@ public class RichiestaScambioServiceImplTest {
                 IllegalArgumentException.class,
                 () -> service.invia(annuncio.getId(), "mittente1", "Messaggio")
         );
+    }
+
+    /**
+     * Verifica che richiesteRicevute restituisca tutte le richieste
+     * inviate per gli annunci del proprietario indicato.
+     */
+    @Test
+    void richiesteRicevuteRestituisceLeRichiesteDelProprietario() {
+
+        Annuncio annuncio = annuncioService.crea(
+                "autore1",
+                "Lezioni Java",
+                "Descrizione",
+                "Informatica",
+                "Sì",
+                "Inglese"
+        );
+
+        service.invia(annuncio.getId(), "mittente1", "Primo messaggio");
+        service.invia(annuncio.getId(), "mittente2", "Secondo messaggio");
+
+        List<RichiestaScambio> richieste = service.richiesteRicevute("autore1");
+
+        assertEquals(2, richieste.size());
+    }
+
+    /**
+     * Verifica che richiesteRicevute restituisca una lista vuota
+     * se l'utente non ha ricevuto richieste.
+     */
+    @Test
+    void richiesteRicevuteSenzaRichiesteRestituisceListaVuota() {
+
+        List<RichiestaScambio> richieste = service.richiesteRicevute("autore-senza-richieste");
+
+        assertTrue(richieste.isEmpty());
+    }
+
+    /**
+     * Verifica che richiesteRicevute restituisca una lista vuota
+     * quando l'id proprietario è null o vuoto.
+     */
+    @Test
+    void richiesteRicevuteConIdProprietarioNonValidoRestituisceListaVuota() {
+
+        assertTrue(service.richiesteRicevute(null).isEmpty());
+        assertTrue(service.richiesteRicevute("").isEmpty());
     }
 }
