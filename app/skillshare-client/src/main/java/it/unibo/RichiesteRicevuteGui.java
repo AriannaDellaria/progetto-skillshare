@@ -1,11 +1,9 @@
 package it.unibo;
 
 import com.google.gwt.core.client.GWT;
+import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.rpc.AsyncCallback;
-import com.google.gwt.user.client.ui.HTML;
-import com.google.gwt.user.client.ui.Label;
-import com.google.gwt.user.client.ui.RootPanel;
-import com.google.gwt.user.client.ui.VerticalPanel;
+import com.google.gwt.user.client.ui.*;
 
 import java.util.List;
 
@@ -83,10 +81,100 @@ public class RichiesteRicevuteGui {
                 "Messaggio: " + richiesta.getMessaggio()
         );
 
+        Label stato = new Label(
+                "Stato: " + richiesta.getStato().getEtichetta()
+        );
+
         scheda.add(annuncio);
         scheda.add(mittente);
         scheda.add(messaggio);
+        scheda.add(stato);
 
+        if (richiesta.getStato() == StatoRichiesta.IN_ATTESA) {
+
+            Label esitoOperazione = new Label();
+
+            Button accettaButton = new Button("Accetta");
+            Button rifiutaButton = new Button("Rifiuta");
+
+            accettaButton.addClickHandler(event -> {
+
+                boolean confermato = Window.confirm(
+                        "Confermi di voler accettare questa richiesta di scambio?"
+                );
+
+                if (!confermato) {
+                    return;
+                }
+
+                accettaButton.setEnabled(false);
+                rifiutaButton.setEnabled(false);
+
+                richiestaScambioService.accetta(
+                        richiesta.getId(),
+                        SessioneUtente.getUtenteCorrente().getId(),
+                        new AsyncCallback<RichiestaScambio>() {
+
+                            @Override
+                            public void onFailure(Throwable caught) {
+                                accettaButton.setEnabled(true);
+                                rifiutaButton.setEnabled(true);
+                                esitoOperazione.setText(
+                                        caught.getMessage() != null
+                                                ? caught.getMessage()
+                                                : "Errore durante l'accettazione della richiesta."
+                                );
+                            }
+
+                            @Override
+                            public void onSuccess(RichiestaScambio aggiornata) {
+                                mostra();
+                            }
+                        }
+                );
+            });
+
+            rifiutaButton.addClickHandler(event -> {
+
+                boolean confermato = Window.confirm(
+                        "Confermi di voler rifiutare questa richiesta di scambio?"
+                );
+
+                if (!confermato) {
+                    return;
+                }
+
+                accettaButton.setEnabled(false);
+                rifiutaButton.setEnabled(false);
+
+                richiestaScambioService.rifiuta(
+                        richiesta.getId(),
+                        SessioneUtente.getUtenteCorrente().getId(),
+                        new AsyncCallback<RichiestaScambio>() {
+
+                            @Override
+                            public void onFailure(Throwable caught) {
+                                accettaButton.setEnabled(true);
+                                rifiutaButton.setEnabled(true);
+                                esitoOperazione.setText(
+                                        caught.getMessage() != null
+                                                ? caught.getMessage()
+                                                : "Errore durante il rifiuto della richiesta."
+                                );
+                            }
+
+                            @Override
+                            public void onSuccess(RichiestaScambio aggiornata) {
+                                mostra();
+                            }
+                        }
+                );
+            });
+
+            scheda.add(accettaButton);
+            scheda.add(rifiutaButton);
+            scheda.add(esitoOperazione);
+        }
         return scheda;
     }
 }

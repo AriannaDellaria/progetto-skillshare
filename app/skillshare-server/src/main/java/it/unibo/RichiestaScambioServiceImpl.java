@@ -75,4 +75,54 @@ public class RichiestaScambioServiceImpl extends RemoteServiceServlet implements
 
         return richiestaScambioRepository.trovaPerProprietario(idProprietario);
     }
+
+    /**
+     * Accetta una richiesta di scambio, se consentito.
+     */
+    @Override
+    public RichiestaScambio accetta(String idRichiesta, String idUtenteCorrente) throws IllegalArgumentException {
+        RichiestaScambio richiesta = validaOperazioneSuRichiesta(idRichiesta, idUtenteCorrente);
+        return richiestaScambioRepository.aggiornaStato(richiesta.getId(), StatoRichiesta.ACCETTATA);
+    }
+
+    /**
+     * Rifiuta una richiesta di scambio, se consentito.
+     */
+    @Override
+    public RichiestaScambio rifiuta(String idRichiesta, String idUtenteCorrente) throws IllegalArgumentException {
+        RichiestaScambio richiesta = validaOperazioneSuRichiesta(idRichiesta, idUtenteCorrente);
+        return richiestaScambioRepository.aggiornaStato(richiesta.getId(), StatoRichiesta.RIFIUTATA);
+    }
+
+    /**
+     * Valida che l'utente possa accettare/rifiutare la richiesta indicata:
+     * la richiesta deve esistere, l'utente deve esserne il destinatario,
+     * e la richiesta deve essere ancora in attesa.
+     */
+    private RichiestaScambio validaOperazioneSuRichiesta(String idRichiesta, String idUtenteCorrente) {
+
+        if (idRichiesta == null || idRichiesta.trim().isEmpty()) {
+            throw new IllegalArgumentException("Richiesta non valida.");
+        }
+
+        if (idUtenteCorrente == null || idUtenteCorrente.trim().isEmpty()) {
+            throw new IllegalArgumentException("Devi effettuare l'accesso per gestire una richiesta.");
+        }
+
+        RichiestaScambio richiesta = richiestaScambioRepository.trovaPerId(idRichiesta);
+
+        if (richiesta == null) {
+            throw new IllegalArgumentException("La richiesta selezionata non esiste più.");
+        }
+
+        if (!idUtenteCorrente.equals(richiesta.getIdProprietario())) {
+            throw new IllegalArgumentException("Non sei autorizzato a gestire questa richiesta.");
+        }
+
+        if (richiesta.getStato() != StatoRichiesta.IN_ATTESA) {
+            throw new IllegalArgumentException("Questa richiesta è già stata gestita.");
+        }
+
+        return richiesta;
+    }
 }

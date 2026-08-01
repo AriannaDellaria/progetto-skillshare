@@ -64,4 +64,28 @@ class RichiestaScambioRepositoryTest {
 
         assertTrue(risultati.isEmpty());
     }
+    /**
+     * Verifica che aggiornaStato restituisca null per un id inesistente.
+     */
+    @Test
+    void aggiornaStatoConIdInesistenteRestituisceNull() {
+
+        RichiestaScambio risultato = richiestaScambioRepository.aggiornaStato(
+                "id-inesistente", StatoRichiesta.ACCETTATA
+        );
+
+        assertNull(risultato);
+    }
+    /**
+     * Verifica che trovaPerAnnuncio restituisca una lista vuota
+     * quando l'id passato è null.
+     */
+    @Test
+    void trovaPerAnnuncioConIdNullRestituisceListaVuota() {
+
+        List<RichiestaScambio> risultati =
+                richiestaScambioRepository.trovaPerAnnuncio(null);
+
+        assertTrue(risultati.isEmpty());
+    }
 }

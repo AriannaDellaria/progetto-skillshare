@@ -13,6 +13,7 @@ import java.util.List;
 public class AnnuncioServiceImpl extends RemoteServiceServlet implements AnnuncioService {
 
     private final AnnuncioRepository annuncioRepository = new AnnuncioRepository();
+    private final RichiestaScambioRepository richiestaScambioRepository = new RichiestaScambioRepository();
 
     /**
      * Valida i dati e crea un nuovo annuncio.
@@ -209,7 +210,16 @@ public class AnnuncioServiceImpl extends RemoteServiceServlet implements Annunci
         if (idAnnuncio == null || idAutore == null) {
             return false;
         }
+        boolean rimosso = annuncioRepository.rimuovi(idAnnuncio, idAutore);
+        if (rimosso) {
+            List<RichiestaScambio> richieste = richiestaScambioRepository.trovaPerAnnuncio(idAnnuncio);
 
-        return annuncioRepository.rimuovi(idAnnuncio, idAutore);
+            for (RichiestaScambio richiesta : richieste) {
+                if (richiesta.getStato() == StatoRichiesta.IN_ATTESA) {
+                    richiestaScambioRepository.aggiornaStato(richiesta.getId(), StatoRichiesta.RIFIUTATA);
+                }
+            }
+        }
+        return rimosso;
     }
 }

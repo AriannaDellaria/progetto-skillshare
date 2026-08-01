@@ -1044,4 +1044,61 @@ public class AnnuncioServiceImplTest {
         assertEquals("Zebra", originale.get(0).getTitolo());
         assertEquals("Alfa", originale.get(1).getTitolo());
     }
+
+    /**
+     * Verifica che l'eliminazione di un annuncio rifiuti automaticamente
+     * le richieste ancora in attesa collegate a quell'annuncio.
+     */
+    @Test
+    void rimuoviRifiutaAutomaticamenteLeRichiesteInAttesa() {
+        String autore = "autore_" + System.nanoTime();
+        String mittente = "mittente_" + System.nanoTime();
+
+        Annuncio annuncio = service.crea(
+                autore, "Titolo", "Descrizione",
+                "Categoria", "Sì", "Cambio"
+        );
+
+        RichiestaScambioServiceImpl richiestaScambioService = new RichiestaScambioServiceImpl();
+
+        RichiestaScambio richiesta = richiestaScambioService.invia(
+                annuncio.getId(), mittente, "Messaggio"
+        );
+
+        service.rimuovi(annuncio.getId(), autore);
+
+        List<RichiestaScambio> ricevute = richiestaScambioService.richiesteRicevute(autore);
+
+        assertEquals(1, ricevute.size());
+        assertEquals(StatoRichiesta.RIFIUTATA, ricevute.get(0).getStato());
+    }
+
+    /**
+     * Verifica che l'eliminazione di un annuncio non modifichi lo stato
+     * di richieste già accettate o già rifiutate in precedenza.
+     */
+    @Test
+    void rimuoviNonModificaRichiesteGiaGestite() {
+        String autore = "autore_" + System.nanoTime();
+        String mittente = "mittente_" + System.nanoTime();
+
+        Annuncio annuncio = service.crea(
+                autore, "Titolo", "Descrizione",
+                "Categoria", "Sì", "Cambio"
+        );
+
+        RichiestaScambioServiceImpl richiestaScambioService = new RichiestaScambioServiceImpl();
+
+        RichiestaScambio richiestaAccettata = richiestaScambioService.invia(
+                annuncio.getId(), mittente, "Messaggio 1"
+        );
+        richiestaScambioService.accetta(richiestaAccettata.getId(), autore);
+
+        service.rimuovi(annuncio.getId(), autore);
+
+        List<RichiestaScambio> ricevute = richiestaScambioService.richiesteRicevute(autore);
+
+        assertEquals(1, ricevute.size());
+        assertEquals(StatoRichiesta.ACCETTATA, ricevute.get(0).getStato());
+    }
 }
