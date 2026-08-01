@@ -74,52 +74,50 @@ public class UtenteServiceImplTest {
      * Verifica che il servizio rifiuti un nome utente nullo.
      */
     @Test
-    public void registra_shouldThrowWhenUsernameIsNull() {
-        assertThrows(
-                IllegalArgumentException.class,
-                () -> service.registra(
-                        null,
-                        "arianna@example.com",
-                        "Password!"
-                )
+    public void registra_shouldReturnNullWhenUsernameIsNull()  {
+        Utente risultato = service.registra(
+                null,
+                "arianna@example.com",
+                "Password!"
         );
+
+        assertNull(risultato);
     }
 
     /**
      * Verifica che il servizio rifiuti un'email non valida.
      */
     @Test
-    public void registra_shouldThrowWhenEmailIsInvalid() {
-        assertThrows(
-                IllegalArgumentException.class,
-                () -> service.registra(
-                        "Arianna",
-                        "email-non-valida",
-                        "Password!"
-                )
+    public void registra_shouldReturnNullWhenEmailIsInvalid()  {
+        Utente risultato = service.registra(
+                "Arianna",
+                "email-non-valida",
+                "Password!"
         );
+
+        assertNull(risultato);
     }
 
     /**
      * Verifica che il servizio rifiuti una password non valida.
      */
     @Test
-    public void registra_shouldThrowWhenPasswordIsInvalid() {
-        assertThrows(
-                IllegalArgumentException.class,
-                () -> service.registra(
-                        "Arianna",
-                        "arianna@example.com",
-                        "password"
-                )
+    public void registra_shouldReturnNullWhenPasswordIsInvalid() {
+
+        Utente risultato = service.registra(
+                "Arianna",
+                "arianna@example.com",
+                "password"
         );
+
+        assertNull(risultato);
     }
 
     /**
-     * Verifica la propagazione di un'email duplicata.
+     * Verifica che il servizio rifiuti un'email già registrata.
      */
     @Test
-    public void registra_shouldThrowWhenEmailAlreadyExists() {
+    public void registra_shouldReturnNullWhenEmailAlreadyExists() {
         when(
                 utenteRepository.registra(
                         "Arianna",
@@ -132,20 +130,55 @@ public class UtenteServiceImplTest {
                 )
         );
 
-        IllegalArgumentException eccezione = assertThrows(
-                IllegalArgumentException.class,
-                () -> service.registra(
-                        "Arianna",
-                        "arianna@example.com",
-                        "Password!"
-                )
+        Utente risultato = service.registra(
+                "Arianna",
+                "arianna@example.com",
+                "Password!"
         );
 
-        assertEquals(
-                "Email già registrata.",
-                eccezione.getMessage()
-        );
+        assertNull(risultato);
     }
+
+    /**
+     * Verifica che il servizio riconosca un'email già registrata.
+     */
+    @Test
+    void emailGiaRegistrataRestituisceTrue() {
+
+        when(
+                utenteRepository.emailGiaRegistrata(
+                        "arianna@example.com"
+                )
+        ).thenReturn(true);
+
+        boolean risultato =
+                service.emailGiaRegistrata(
+                        "arianna@example.com"
+                );
+
+        assertTrue(risultato);
+    }
+
+    /**
+     * Verifica che il servizio riconosca un'email non ancora registrata.
+     */
+    @Test
+    void emailNonRegistrataRestituisceFalse() {
+
+        when(
+                utenteRepository.emailGiaRegistrata(
+                        "nuova@example.com"
+                )
+        ).thenReturn(false);
+
+        boolean risultato =
+                service.emailGiaRegistrata(
+                        "nuova@example.com"
+                );
+
+        assertFalse(risultato);
+    }
+
 
     /**
      * Verifica che gli spazi nel nome utente vengano ignorati.

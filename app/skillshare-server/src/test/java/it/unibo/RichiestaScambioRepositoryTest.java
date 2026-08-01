@@ -88,4 +88,17 @@ class RichiestaScambioRepositoryTest {
 
         assertTrue(risultati.isEmpty());
     }
+
+    /**
+     * Verifica che trovaPerMittente restituisca una lista vuota
+     * quando l'id passato è null.
+     */
+    @Test
+    void trovaPerMittenteConIdNullRestituisceListaVuota() {
+
+        List<RichiestaScambio> risultati =
+                richiestaScambioRepository.trovaPerMittente(null);
+
+        assertTrue(risultati.isEmpty());
+    }
 }

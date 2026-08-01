@@ -19,6 +19,14 @@ public interface UtenteServiceAsync {
             AsyncCallback<Utente> callback
     );
 
+    /**
+     * Richiede il controllo dell'email al server.
+     */
+    void emailGiaRegistrata(
+            String email,
+            AsyncCallback<Boolean> callback
+    );
+
     // Invia al server la richiesta di accesso.
     void login(
             String nomeUtente,

@@ -65,6 +65,11 @@ public class HomeGui {
                 event -> new RichiesteRicevuteGui().mostra()
         );
 
+        Button richiesteInviateButton = new Button("Richieste inviate");
+        richiesteInviateButton.addClickHandler(
+                event -> new MieRichiesteGui().mostra()
+        );
+
         panel.add(titolo);
         panel.add(benvenuto);
         panel.add(logoutButton);
@@ -73,6 +78,7 @@ public class HomeGui {
         panel.add(mieiAnnunciButton);
         panel.add(annunciButton);
         panel.add(richiesteRicevuteButton);
+        panel.add(richiesteInviateButton);
 
         RootPanel.get().add(panel);
     }

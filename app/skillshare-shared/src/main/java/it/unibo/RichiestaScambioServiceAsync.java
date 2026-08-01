@@ -23,6 +23,12 @@ public interface RichiestaScambioServiceAsync {
             String idProprietario,
             AsyncCallback<List<RichiestaScambio>> callback
     );
+
+    void richiesteInviate(
+            String idMittente,
+            AsyncCallback<List<RichiestaScambio>> callback
+    );
+
     void accetta(
             String idRichiesta,
             String idUtenteCorrente,
