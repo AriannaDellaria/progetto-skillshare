@@ -76,6 +76,16 @@ public class RichiestaScambioServiceImpl extends RemoteServiceServlet implements
         return richiestaScambioRepository.trovaPerProprietario(idProprietario);
     }
 
+    @Override
+    public List<RichiestaScambio> richiesteInviate(String idMittente) {
+
+        if (idMittente == null || idMittente.trim().isEmpty()) {
+            return new ArrayList<>();
+        }
+
+        return richiestaScambioRepository.trovaPerMittente(idMittente);
+    }
+
     /**
      * Accetta una richiesta di scambio, se consentito.
      */

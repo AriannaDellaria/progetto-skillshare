@@ -354,4 +354,50 @@ public class RichiestaScambioServiceImplTest {
                 () -> service.rifiuta("id-inesistente", "autore1")
         );
     }
+
+    /**
+     * Verifica che richiesteInviate restituisca tutte le richieste
+     * inviate dall'utente indicato.
+     */
+    @Test
+    void richiesteInviateRestituisceLeRichiesteDelMittente() {
+
+        Annuncio annuncio1 = annuncioService.crea(
+                "autore1", "Lezioni Java", "Descrizione",
+                "Informatica", "Sì", "Inglese"
+        );
+
+        Annuncio annuncio2 = annuncioService.crea(
+                "autore2", "Lezioni Chitarra", "Descrizione",
+                "Musica", "Sì", "Spagnolo"
+        );
+
+        service.invia(annuncio1.getId(), "mittente1", "Primo messaggio");
+        service.invia(annuncio2.getId(), "mittente1", "Secondo messaggio");
+
+        List<RichiestaScambio> richieste = service.richiesteInviate("mittente1");
+
+        assertEquals(2, richieste.size());
+    }
+
+    /**
+     * Verifica che richiesteInviate restituisca una lista vuota
+     * se l'utente non ha inviato richieste.
+     */
+    @Test
+    void richiesteInviateSenzaRichiesteRestituisceListaVuota() {
+        List<RichiestaScambio> richieste = service.richiesteInviate("mittente-senza-richieste");
+
+        assertTrue(richieste.isEmpty());
+    }
+
+    /**
+     * Verifica che richiesteInviate restituisca una lista vuota
+     * quando l'id mittente è null o vuoto.
+     */
+    @Test
+    void richiesteInviateConIdMittenteNonValidoRestituisceListaVuota() {
+        assertTrue(service.richiesteInviate(null).isEmpty());
+        assertTrue(service.richiesteInviate("").isEmpty());
+    }
 }

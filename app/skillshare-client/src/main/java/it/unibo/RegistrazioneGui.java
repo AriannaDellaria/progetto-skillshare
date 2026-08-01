@@ -79,47 +79,46 @@ public class RegistrazioneGui {
                 return;
             }
 
-            utenteService.registra(
-                    nomeUtente,
-                    email,
-                    password,
-                    new AsyncCallback<Utente>() {
+            registraButton.setEnabled(false);
+            messaggio.setText("");
 
-                        /**
-                         * Mostra l'errore ricevuto dal server.
-                         */
+            utenteService.emailGiaRegistrata(
+                    email,
+                    new AsyncCallback<Boolean>() {
+
                         @Override
-                        public void onFailure(Throwable caught) {
-                            if (caught.getMessage() != null
-                                    && !caught.getMessage()
-                                    .trim()
-                                    .isEmpty()) {
-                                messaggio.setText(
-                                        caught.getMessage()
-                                );
-                            } else {
-                                messaggio.setText(
-                                        "Errore di comunicazione con il server."
-                                );
-                            }
+                        public void onFailure(
+                                Throwable caught
+                        ) {
+                            registraButton.setEnabled(true);
+
+                            messaggio.setText(
+                                    "Errore durante il controllo "
+                                            + "dell'email."
+                            );
                         }
 
-                        /**
-                         * Conferma la registrazione completata.
-                         */
                         @Override
-                        public void onSuccess(Utente utente) {
-                            if (utente == null) {
+                        public void onSuccess(
+                                Boolean giaRegistrata
+                        ) {
+                            if (Boolean.TRUE.equals(
+                                    giaRegistrata
+                            )) {
+                                registraButton.setEnabled(true);
+
                                 messaggio.setText(
-                                        "Registrazione non completata."
+                                        "Mail già registrata "
+                                                + "per un altro account."
                                 );
                                 return;
                             }
-
-                            messaggio.setText(
-                                    "Registrazione completata. "
-                                            + "Benvenuto/a "
-                                            + utente.getNomeUtente()
+                            registraUtente(
+                                    nomeUtente,
+                                    email,
+                                    password,
+                                    registraButton,
+                                    messaggio
                             );
                         }
                     }
@@ -136,5 +135,57 @@ public class RegistrazioneGui {
         panel.add(NavigationHelper.creaBottoneVaiAlLogin());
 
         RootPanel.get().add(panel);
+    }
+
+    /**
+     * Invia al server la richiesta di registrazione.
+     */
+    private void registraUtente(
+            String nomeUtente,
+            String email,
+            String password,
+            Button registraButton,
+            Label messaggio
+    ) {
+        utenteService.registra(
+                nomeUtente,
+                email,
+                password,
+                new AsyncCallback<Utente>() {
+
+                    @Override
+                    public void onFailure(
+                            Throwable caught
+                    ) {
+                        registraButton.setEnabled(true);
+
+                        messaggio.setText(
+                                "Errore di comunicazione "
+                                        + "con il server."
+                        );
+                    }
+
+                    @Override
+                    public void onSuccess(Utente utente) {
+                        registraButton.setEnabled(true);
+
+                        if (utente == null) {
+                            messaggio.setText(
+                                    "Nome utente già utilizzato "
+                                            + "o dati non validi."
+                            );
+                            return;
+                        }
+
+                        messaggio.setText(
+                                "Registrazione completata. "
+                                        + "Benvenuto/a "
+                                        + utente.getNomeUtente()
+                        );
+
+                        new LoginGui().mostra();
+                    }
+                }
+        );
     }
 }

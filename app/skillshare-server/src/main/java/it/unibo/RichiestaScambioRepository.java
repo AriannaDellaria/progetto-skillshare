@@ -74,6 +74,27 @@ public class RichiestaScambioRepository {
     }
 
     /**
+     * Cerca tutte le richieste di scambio inviate da un mittente.
+     */
+    public List<RichiestaScambio> trovaPerMittente(String idMittente) {
+
+        List<RichiestaScambio> risultati = new ArrayList<>();
+
+        if (idMittente == null) {
+            return risultati;
+        }
+
+        for (RichiestaScambio richiesta : richieste.values()) {
+            if (idMittente.equals(richiesta.getIdMittente())) {
+                risultati.add(richiesta);
+            }
+        }
+
+        return risultati;
+    }
+
+
+    /**
      * Aggiorna lo stato di una richiesta già salvata.
      */
     public RichiestaScambio aggiornaStato(String id, StatoRichiesta nuovoStato) {

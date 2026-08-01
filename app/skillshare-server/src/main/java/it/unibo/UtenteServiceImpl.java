@@ -36,11 +36,15 @@ public class UtenteServiceImpl extends RemoteServiceServlet implements UtenteSer
             String email,
             String password
     ) {
-        return gestoreRegistrazione.registra(
-                nomeUtente,
-                email,
-                password
-        );
+        try {
+            return gestoreRegistrazione.registra(
+                    nomeUtente,
+                    email,
+                    password
+            );
+        } catch (IllegalArgumentException e) {
+            return null;
+        }
     }
 
     // Esegue il login controllando le credenziali nel repository.
@@ -94,5 +98,19 @@ public class UtenteServiceImpl extends RemoteServiceServlet implements UtenteSer
     @Override
     public Utente trovaPerId(String id) {
         return utenteRepository.trovaPerId(id);
+    }
+
+    /**
+     * Controlla se l'email è già associata a un account.
+     */
+    @Override
+    public boolean emailGiaRegistrata(String email) {
+        if (email == null || email.trim().isEmpty()) {
+            return false;
+        }
+
+        return utenteRepository.emailGiaRegistrata(
+                email.trim()
+        );
     }
 }
