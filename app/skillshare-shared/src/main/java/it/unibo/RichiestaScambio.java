@@ -17,6 +17,7 @@ public class RichiestaScambio implements Serializable {
     private String messaggio;
     private String titoloAnnuncio;
     private String nomeMittente;
+    private StatoRichiesta stato;
     private long dataInvio;
 
     /**
@@ -44,6 +45,7 @@ public class RichiestaScambio implements Serializable {
         this.messaggio = messaggio;
         this.titoloAnnuncio = titoloAnnuncio;
         this.nomeMittente = nomeMittente;
+        this.stato = StatoRichiesta.IN_ATTESA;
         this.dataInvio = System.currentTimeMillis();
     }
 
@@ -79,6 +81,10 @@ public class RichiestaScambio implements Serializable {
         return nomeMittente;
     }
 
+    public StatoRichiesta getStato() {
+        return stato;
+    }
+
     public void setId(String id) {
         this.id = id;
     }
@@ -107,4 +113,7 @@ public class RichiestaScambio implements Serializable {
         this.nomeMittente = nomeMittente;
     }
 
+    public void setStato(StatoRichiesta stato) {
+        this.stato = stato;
+    }
 }

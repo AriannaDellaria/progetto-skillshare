@@ -73,6 +73,42 @@ public class RichiestaScambioRepository {
         return risultati;
     }
 
+    /**
+     * Aggiorna lo stato di una richiesta già salvata.
+     */
+    public RichiestaScambio aggiornaStato(String id, StatoRichiesta nuovoStato) {
 
+        RichiestaScambio richiesta = richieste.get(id);
+
+        if (richiesta == null) {
+            return null;
+        }
+
+        richiesta.setStato(nuovoStato);
+        richieste.put(id, richiesta);
+        DatabaseCore.commit();
+
+        return richiesta;
+    }
+
+    /**
+     * Cerca tutte le richieste di scambio relative a un annuncio.
+     */
+    public List<RichiestaScambio> trovaPerAnnuncio(String idAnnuncio) {
+
+        List<RichiestaScambio> risultati = new ArrayList<>();
+
+        if (idAnnuncio == null) {
+            return risultati;
+        }
+
+        for (RichiestaScambio richiesta : richieste.values()) {
+            if (idAnnuncio.equals(richiesta.getIdAnnuncio())) {
+                risultati.add(richiesta);
+            }
+        }
+
+        return risultati;
+    }
 }
 

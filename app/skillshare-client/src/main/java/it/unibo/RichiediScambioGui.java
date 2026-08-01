@@ -70,6 +70,7 @@ public class RichiediScambioGui {
                 );
                 return;
             }
+            inviaButton.setEnabled(false);
 
             richiestaScambioService.invia(
                     annuncio.getId(),
@@ -79,6 +80,7 @@ public class RichiediScambioGui {
 
                         @Override
                         public void onFailure(Throwable caught) {
+                            inviaButton.setEnabled(true);
 
                             if (caught.getMessage() != null
                                     && !caught.getMessage().trim().isEmpty()) {
@@ -94,9 +96,11 @@ public class RichiediScambioGui {
 
                         @Override
                         public void onSuccess(RichiestaScambio richiesta) {
+                            inviaButton.setEnabled(true);
                             messaggioEsito.setText(
                                     "Richiesta inviata correttamente."
                             );
+                            messaggioBox.setText("");
                         }
                     }
             );

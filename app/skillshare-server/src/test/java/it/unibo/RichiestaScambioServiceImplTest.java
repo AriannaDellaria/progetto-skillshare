@@ -232,4 +232,126 @@ public class RichiestaScambioServiceImplTest {
         assertTrue(service.richiesteRicevute(null).isEmpty());
         assertTrue(service.richiesteRicevute("").isEmpty());
     }
+
+    /**
+     * Verifica che il proprietario possa accettare correttamente
+     * una richiesta in attesa.
+     */
+    @Test
+    void accettaConProprietarioCorrettoAggiornaLoStato() {
+
+        Annuncio annuncio = annuncioService.crea(
+                "autore1", "Titolo", "Descrizione",
+                "Categoria", "Sì", "Cambio"
+        );
+
+        RichiestaScambio richiesta = service.invia(
+                annuncio.getId(), "mittente1", "Messaggio"
+        );
+
+        RichiestaScambio aggiornata = service.accetta(richiesta.getId(), "autore1");
+
+        assertEquals(StatoRichiesta.ACCETTATA, aggiornata.getStato());
+    }
+
+    /**
+     * Verifica che il proprietario possa correttamente rifiutare
+     * una richiesta in attesa.
+     */
+    @Test
+    void rifiutaConProprietarioCorrettoAggiornaLoStato() {
+
+        Annuncio annuncio = annuncioService.crea(
+                "autore1", "Titolo", "Descrizione",
+                "Categoria", "Sì", "Cambio"
+        );
+
+        RichiestaScambio richiesta = service.invia(
+                annuncio.getId(), "mittente1", "Messaggio"
+        );
+
+        RichiestaScambio aggiornata = service.rifiuta(richiesta.getId(), "autore1");
+
+        assertEquals(StatoRichiesta.RIFIUTATA, aggiornata.getStato());
+    }
+
+    /**
+     * Verifica che un utente diverso dal proprietario dell'annuncio
+     * non possa accettare la richiesta.
+     */
+    @Test
+    void accettaConUtenteNonProprietarioRestituisceErrore() {
+
+        Annuncio annuncio = annuncioService.crea(
+                "autore1", "Titolo", "Descrizione",
+                "Categoria", "Sì", "Cambio"
+        );
+
+        RichiestaScambio richiesta = service.invia(
+                annuncio.getId(), "mittente1", "Messaggio"
+        );
+
+        assertThrows(
+                IllegalArgumentException.class,
+                () -> service.accetta(richiesta.getId(), "utente-non-autorizzato")
+        );
+    }
+
+    /**
+     * Verifica che non si possa accettare una richiesta già accettata.
+     */
+    @Test
+    void accettaConRichiestaGiaAccettataRestituisceErrore() {
+
+        Annuncio annuncio = annuncioService.crea(
+                "autore1", "Titolo", "Descrizione",
+                "Categoria", "Sì", "Cambio"
+        );
+
+        RichiestaScambio richiesta = service.invia(
+                annuncio.getId(), "mittente1", "Messaggio"
+        );
+
+        service.accetta(richiesta.getId(), "autore1");
+
+        assertThrows(
+                IllegalArgumentException.class,
+                () -> service.accetta(richiesta.getId(), "autore1")
+        );
+    }
+
+    /**
+     * Verifica che non si possa accettare una richiesta già rifiutata.
+     */
+    @Test
+    void accettaConRichiestaGiaRifiutataRestituisceErrore() {
+
+        Annuncio annuncio = annuncioService.crea(
+                "autore1", "Titolo", "Descrizione",
+                "Categoria", "Sì", "Cambio"
+        );
+
+        RichiestaScambio richiesta = service.invia(
+                annuncio.getId(), "mittente1", "Messaggio"
+        );
+
+        service.rifiuta(richiesta.getId(), "autore1");
+
+        assertThrows(
+                IllegalArgumentException.class,
+                () -> service.accetta(richiesta.getId(), "autore1")
+        );
+    }
+
+    /**
+     * Verifica che non si possa rifiutare una richiesta inesistente.
+     */
+    @Test
+    void rifiutaConRichiestaInesistenteRestituisceErrore() {
+
+        assertThrows(
+                IllegalArgumentException.class,
+                () -> service.rifiuta("id-inesistente", "autore1")
+        );
+    }
 }
