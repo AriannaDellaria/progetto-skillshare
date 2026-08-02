@@ -90,6 +90,17 @@ public class RichiesteRicevuteGui {
         scheda.add(messaggio);
         scheda.add(stato);
 
+        if (richiesta.getStato() == StatoRichiesta.ACCETTATA) {
+            Button apriChatButton = new Button("Apri chat");
+            apriChatButton.addClickHandler(event ->
+                    new ChatGui(
+                            richiesta.getId(),
+                            () -> new RichiesteRicevuteGui().mostra()
+                    ).mostra()
+            );
+            scheda.add(apriChatButton);
+        }
+
         if (richiesta.getStato() == StatoRichiesta.IN_ATTESA) {
 
             Label esitoOperazione = new Label();

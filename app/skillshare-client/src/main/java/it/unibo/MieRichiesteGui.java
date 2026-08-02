@@ -2,10 +2,7 @@ package it.unibo;
 
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.user.client.rpc.AsyncCallback;
-import com.google.gwt.user.client.ui.HTML;
-import com.google.gwt.user.client.ui.Label;
-import com.google.gwt.user.client.ui.RootPanel;
-import com.google.gwt.user.client.ui.VerticalPanel;
+import com.google.gwt.user.client.ui.*;
 
 import java.util.List;
 
@@ -94,6 +91,17 @@ public class MieRichiesteGui {
         scheda.add(annuncio);
         scheda.add(messaggioRichiesta);
         scheda.add(stato);
+
+        if (statoRichiesta == StatoRichiesta.ACCETTATA) {
+            Button apriChatButton = new Button("Apri chat");
+            apriChatButton.addClickHandler(event ->
+                    new ChatGui(
+                            richiesta.getId(),
+                            () -> new MieRichiesteGui().mostra()
+                    ).mostra()
+            );
+            scheda.add(apriChatButton);
+        }
 
         return scheda;
     }
