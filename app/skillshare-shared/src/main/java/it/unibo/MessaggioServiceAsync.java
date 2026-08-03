@@ -11,4 +11,11 @@ public interface MessaggioServiceAsync {
             String idUtenteCorrente,
             AsyncCallback<List<Messaggio>> callback
     );
+
+    void invia(
+            String idRichiesta,
+            String idMittente,
+            String testo,
+            AsyncCallback<Messaggio> callback
+    );
 }

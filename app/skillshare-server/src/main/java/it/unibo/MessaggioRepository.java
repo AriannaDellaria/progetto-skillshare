@@ -5,6 +5,7 @@ import org.mapdb.Serializer;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 import java.util.concurrent.ConcurrentMap;
 
 /**
@@ -36,5 +37,20 @@ public class MessaggioRepository {
         }
 
         return risultati;
+    }
+
+    /**
+     * Crea e salva un nuovo messaggio nella chat.
+     */
+    public Messaggio crea(String idRichiesta, String idMittente, String testo) {
+
+        String id = UUID.randomUUID().toString();
+
+        Messaggio messaggio = new Messaggio(id, idRichiesta, idMittente, testo);
+
+        messaggi.put(id, messaggio);
+        DatabaseCore.commit();
+
+        return messaggio;
     }
 }

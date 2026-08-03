@@ -26,4 +26,6 @@ public interface RichiestaScambioService extends RemoteService {
     RichiestaScambio accetta(String idRichiesta, String idUtenteCorrente) throws IllegalArgumentException;
 
     RichiestaScambio rifiuta(String idRichiesta, String idUtenteCorrente) throws IllegalArgumentException;
+
+    RichiestaScambio trovaPerId(String idRichiesta, String idUtenteCorrente) throws IllegalArgumentException;
 }
