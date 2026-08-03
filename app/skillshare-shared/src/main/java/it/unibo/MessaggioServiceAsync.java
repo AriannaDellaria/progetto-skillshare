@@ -18,4 +18,11 @@ public interface MessaggioServiceAsync {
             String testo,
             AsyncCallback<Messaggio> callback
     );
+
+    void condividiLink(
+            String idRichiesta,
+            String idUtenteCorrente,
+            String url,
+            AsyncCallback<Messaggio> callback
+    );
 }
