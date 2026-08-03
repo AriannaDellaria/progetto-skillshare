@@ -95,7 +95,8 @@ public class RichiesteRicevuteGui {
             apriChatButton.addClickHandler(event ->
                     new ChatGui(
                             richiesta.getId(),
-                            () -> new RichiesteRicevuteGui().mostra()
+                            () -> new RichiesteRicevuteGui().mostra(),
+                            true
                     ).mostra()
             );
             scheda.add(apriChatButton);

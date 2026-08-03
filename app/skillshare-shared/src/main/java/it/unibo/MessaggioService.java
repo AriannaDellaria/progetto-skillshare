@@ -23,4 +23,5 @@ public interface MessaggioService extends RemoteService {
      */
     Messaggio invia(String idRichiesta, String idMittente, String testo) throws IllegalArgumentException;
 
+    Messaggio condividiLink(String idRichiesta, String idUtenteCorrente, String url) throws IllegalArgumentException;
 }

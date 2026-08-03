@@ -53,4 +53,16 @@ public class MessaggioRepository {
 
         return messaggio;
     }
+
+    public Messaggio crea(String idRichiesta, String idMittente, String testo, boolean isLink) {
+
+        String id = UUID.randomUUID().toString();
+
+        Messaggio messaggio = new Messaggio(id, idRichiesta, idMittente, testo, isLink);
+
+        messaggi.put(id, messaggio);
+        DatabaseCore.commit();
+
+        return messaggio;
+    }
 }

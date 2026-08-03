@@ -38,7 +38,27 @@ public class MessaggioServiceImpl extends RemoteServiceServlet implements Messag
         return messaggioRepository.crea(idRichiesta, idMittente, testo.trim());
     }
 
-    private void validaAccessoChat(String idRichiesta, String idUtenteCorrente) {
+    /**
+     * Condivide un link nella chat. Consentito solo al proprietario
+     * dell'annuncio, e solo se il link è valido.
+     */
+    @Override
+    public Messaggio condividiLink(String idRichiesta, String idUtenteCorrente, String url) throws IllegalArgumentException {
+
+        RichiestaScambio richiesta = validaAccessoChat(idRichiesta, idUtenteCorrente);
+
+        if (!idUtenteCorrente.equals(richiesta.getIdProprietario())) {
+            throw new IllegalArgumentException("Solo chi ha pubblicato l'annuncio può condividere un link.");
+        }
+
+        if (!ValidatoreLink.linkValido(url)) {
+            throw new IllegalArgumentException("Il link inserito non è valido.");
+        }
+
+        return messaggioRepository.crea(idRichiesta, idUtenteCorrente, url.trim(), true);
+    }
+
+    private RichiestaScambio validaAccessoChat(String idRichiesta, String idUtenteCorrente) {
 
         if (idRichiesta == null || idRichiesta.trim().isEmpty()) {
             throw new IllegalArgumentException("Richiesta non valida.");
@@ -64,5 +84,6 @@ public class MessaggioServiceImpl extends RemoteServiceServlet implements Messag
         if (richiesta.getStato() != StatoRichiesta.ACCETTATA) {
             throw new IllegalArgumentException("La chat è disponibile solo per scambi accettati.");
         }
+        return richiesta;
     }
 }

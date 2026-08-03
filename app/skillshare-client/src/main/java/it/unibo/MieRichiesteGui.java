@@ -97,7 +97,8 @@ public class MieRichiesteGui {
             apriChatButton.addClickHandler(event ->
                     new ChatGui(
                             richiesta.getId(),
-                            () -> new MieRichiesteGui().mostra()
+                            () -> new MieRichiesteGui().mostra(),
+                            false
                     ).mostra()
             );
             scheda.add(apriChatButton);

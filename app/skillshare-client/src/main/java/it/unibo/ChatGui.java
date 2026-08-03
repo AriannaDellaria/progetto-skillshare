@@ -19,9 +19,12 @@ public class ChatGui {
 
     private String nomeAltroPartecipante = "Altro utente";
 
-    public ChatGui(String idRichiesta, Runnable azioneIndietro) {
+    private final boolean utenteCorrenteEProprietario;
+
+    public ChatGui(String idRichiesta, Runnable azioneIndietro,  boolean utenteCorrenteEProprietario) {
         this.idRichiesta = idRichiesta;
         this.azioneIndietro = azioneIndietro;
+        this.utenteCorrenteEProprietario = utenteCorrenteEProprietario;
     }
 
     public void mostra() {
@@ -100,6 +103,65 @@ public class ChatGui {
         panel.add(inviaButton);
         panel.add(messaggioErrore);
 
+        if (utenteCorrenteEProprietario) {
+
+            TextBox linkBox = new TextBox();
+            linkBox.getElement().setPropertyString("placeholder", "https://esempio.it/incontro");
+
+            Button condividiLinkButton = new Button("Condividi link");
+            Label linkErrore = new Label();
+
+            condividiLinkButton.addClickHandler(event -> {
+                linkErrore.setText("");
+
+                String url = linkBox.getText().trim();
+
+                if (url.isEmpty()) {
+                    linkErrore.setText("Inserisci un link da condividere.");
+                    return;
+                }
+
+                if (!ValidatoreLink.linkValido(url)) {
+                    linkErrore.setText("Il link inserito non è valido.");
+                    return;
+                }
+
+                condividiLinkButton.setEnabled(false);
+
+                messaggioService.condividiLink(
+                        idRichiesta,
+                        utente.getId(),
+                        url,
+                        new AsyncCallback<Messaggio>() {
+
+                            @Override
+                            public void onFailure(Throwable caught) {
+                                condividiLinkButton.setEnabled(true);
+                                linkErrore.setText(
+                                        caught.getMessage() != null
+                                                ? caught.getMessage()
+                                                : "Errore durante la condivisione del link."
+                                );
+                            }
+
+                            @Override
+                            public void onSuccess(Messaggio nuovoMessaggio) {
+                                linkBox.setText("");
+                                condividiLinkButton.setEnabled(true);
+                                mostra();
+                            }
+                        }
+                );
+            });
+
+            panel.add(linkBox);
+            panel.add(condividiLinkButton);
+            panel.add(linkErrore);
+        }
+
+        VerticalPanel terminaScambioPanel = new VerticalPanel();
+        panel.add(terminaScambioPanel);
+
         Button indietroButton = new Button("Indietro");
         indietroButton.addClickHandler(event -> azioneIndietro.run());
         panel.add(indietroButton);
@@ -113,7 +175,7 @@ public class ChatGui {
 
                     @Override
                     public void onFailure(Throwable caught) {
-                        caricaCronologia(utente, messaggioStato, cronologiaPanel);
+                        caricaCronologia(utente, messaggioStato, cronologiaPanel, terminaScambioPanel);
                     }
 
                     @Override
@@ -126,7 +188,7 @@ public class ChatGui {
 
                             @Override
                             public void onFailure(Throwable caught) {
-                                caricaCronologia(utente, messaggioStato, cronologiaPanel);
+                                caricaCronologia(utente, messaggioStato, cronologiaPanel, terminaScambioPanel);
                             }
 
                             @Override
@@ -134,7 +196,7 @@ public class ChatGui {
                                 if (altro != null) {
                                     nomeAltroPartecipante = altro.getNomeUtente();
                                 }
-                                caricaCronologia(utente, messaggioStato, cronologiaPanel);
+                                caricaCronologia(utente, messaggioStato, cronologiaPanel, terminaScambioPanel);
                             }
                         });
                     }
@@ -142,7 +204,7 @@ public class ChatGui {
         );
     }
 
-    private void caricaCronologia(Utente utente, Label messaggioStato, VerticalPanel cronologiaPanel) {
+    private void caricaCronologia(Utente utente, Label messaggioStato, VerticalPanel cronologiaPanel, VerticalPanel terminaScambioPanel) {
 
         messaggioService.apriChat(
                 idRichiesta,
@@ -176,15 +238,25 @@ public class ChatGui {
                             cronologiaPanel.add(creaLabelMessaggio(messaggio, utente));
                         }
 
+                        boolean linkCondiviso = messaggi.stream().anyMatch(Messaggio::isLink);
+
+                        if (linkCondiviso && utenteCorrenteEProprietario) {
+                            terminaScambioPanel.add(new Button("Termina scambio"));
+                        }
                     }
                 }
         );
     }
 
-    private Label creaLabelMessaggio(Messaggio messaggio, Utente utente) {
+    private Widget creaLabelMessaggio(Messaggio messaggio, Utente utente) {
         String prefisso = utente.getId().equals(messaggio.getIdMittente())
                 ? "Tu: "
                 : nomeAltroPartecipante + ": ";
+
+        if (messaggio.isLink()) {
+            Anchor link = new Anchor(prefisso + messaggio.getTesto(), messaggio.getTesto(), "_blank");
+            return link;
+        }
 
         return new Label(prefisso + messaggio.getTesto());
     }

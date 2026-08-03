@@ -14,6 +14,7 @@ public class Messaggio implements Serializable {
     private String idRichiesta;
     private String idMittente;
     private String testo;
+    private boolean isLink;
     private long dataInvio;
 
     /**
@@ -38,6 +39,21 @@ public class Messaggio implements Serializable {
         this.dataInvio = System.currentTimeMillis();
     }
 
+    public Messaggio(
+            String id,
+            String idRichiesta,
+            String idMittente,
+            String testo,
+            boolean isLink
+    ) {
+        this.id = id;
+        this.idRichiesta = idRichiesta;
+        this.idMittente = idMittente;
+        this.testo = testo;
+        this.isLink = isLink;
+        this.dataInvio = System.currentTimeMillis();
+    }
+
     public String getId() {
         return id;
     }
@@ -56,6 +72,14 @@ public class Messaggio implements Serializable {
 
     public long getDataInvio() {
         return dataInvio;
+    }
+
+    public boolean isLink() {
+        return isLink;
+    }
+
+    public void setLink(boolean link) {
+        isLink = link;
     }
 
     public void setId(String id) {

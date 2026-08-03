@@ -272,4 +272,98 @@ public class MessaggioServiceImplTest {
 
         assertEquals(2, cronologia.size());
     }
+
+    /**
+     * Verifica che il proprietario possa condividere un link valido.
+     */
+    @Test
+    void condividiLinkConProprietarioELinkValidoRestituisceMessaggio() {
+
+        Annuncio annuncio = annuncioService.crea(
+                "autore1", "Titolo", "Descrizione",
+                "Categoria", "Sì", "Cambio"
+        );
+
+        RichiestaScambio richiesta = richiestaScambioService.invia(
+                annuncio.getId(), "mittente1", "Messaggio"
+        );
+
+        richiestaScambioService.accetta(richiesta.getId(), "autore1");
+
+        Messaggio messaggio = service.condividiLink(
+                richiesta.getId(), "autore1", "https://meet.esempio.it/incontro"
+        );
+
+        assertNotNull(messaggio);
+        assertTrue(messaggio.isLink());
+        assertEquals("https://meet.esempio.it/incontro", messaggio.getTesto());
+    }
+
+    /**
+     * Verifica che il mittente non possa condividere link.
+     */
+    @Test
+    void condividiLinkConMittenteRestituisceErrore() {
+
+        Annuncio annuncio = annuncioService.crea(
+                "autore1", "Titolo", "Descrizione",
+                "Categoria", "Sì", "Cambio"
+        );
+
+        RichiestaScambio richiesta = richiestaScambioService.invia(
+                annuncio.getId(), "mittente1", "Messaggio"
+        );
+
+        richiestaScambioService.accetta(richiesta.getId(), "autore1");
+
+        assertThrows(
+                IllegalArgumentException.class,
+                () -> service.condividiLink(richiesta.getId(), "mittente1", "https://esempio.it")
+        );
+    }
+
+    /**
+     * Verifica che un link non valido venga rifiutato.
+     */
+    @Test
+    void condividiLinkConLinkNonValidoRestituisceErrore() {
+
+        Annuncio annuncio = annuncioService.crea(
+                "autore1", "Titolo", "Descrizione",
+                "Categoria", "Sì", "Cambio"
+        );
+
+        RichiestaScambio richiesta = richiestaScambioService.invia(
+                annuncio.getId(), "mittente1", "Messaggio"
+        );
+
+        richiestaScambioService.accetta(richiesta.getId(), "autore1");
+
+        assertThrows(
+                IllegalArgumentException.class,
+                () -> service.condividiLink(richiesta.getId(), "autore1", "non-e-un-link")
+        );
+    }
+
+    /**
+     * Verifica che non si possa condividere un link in una chat
+     * di una richiesta non ancora accettata.
+     */
+    @Test
+    void condividiLinkConRichiestaInAttesaRestituisceErrore() {
+
+        Annuncio annuncio = annuncioService.crea(
+                "autore1", "Titolo", "Descrizione",
+                "Categoria", "Sì", "Cambio"
+        );
+
+        RichiestaScambio richiesta = richiestaScambioService.invia(
+                annuncio.getId(), "mittente1", "Messaggio"
+        );
+
+        assertThrows(
+                IllegalArgumentException.class,
+                () -> service.condividiLink(richiesta.getId(), "autore1", "https://esempio.it")
+        );
+    }
 }
