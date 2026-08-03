@@ -152,4 +152,124 @@ public class MessaggioServiceImplTest {
                 () -> service.apriChat("id-inesistente", "mittente1")
         );
     }
+
+    /**
+     * Verifica che un partecipante possa inviare un messaggio valido
+     * in una chat di una richiesta accettata.
+     */
+    @Test
+    void inviaConDatiValidiRestituisceMessaggio() {
+
+        Annuncio annuncio = annuncioService.crea(
+                "autore1", "Titolo", "Descrizione",
+                "Categoria", "Sì", "Cambio"
+        );
+
+        RichiestaScambio richiesta = richiestaScambioService.invia(
+                annuncio.getId(), "mittente1", "Messaggio richiesta"
+        );
+
+        richiestaScambioService.accetta(richiesta.getId(), "autore1");
+
+        Messaggio messaggio = service.invia(richiesta.getId(), "mittente1", "Ciao, a che ora ci vediamo?");
+
+        assertNotNull(messaggio);
+        assertEquals(richiesta.getId(), messaggio.getIdRichiesta());
+        assertEquals("mittente1", messaggio.getIdMittente());
+        assertEquals("Ciao, a che ora ci vediamo?", messaggio.getTesto());
+    }
+
+    /**
+     * Verifica che un messaggio con testo vuoto venga rifiutato.
+     */
+    @Test
+    void inviaConTestoVuotoRestituisceErrore() {
+
+        Annuncio annuncio = annuncioService.crea(
+                "autore1", "Titolo", "Descrizione",
+                "Categoria", "Sì", "Cambio"
+        );
+
+        RichiestaScambio richiesta = richiestaScambioService.invia(
+                annuncio.getId(), "mittente1", "Messaggio richiesta"
+        );
+
+        richiestaScambioService.accetta(richiesta.getId(), "autore1");
+
+        assertThrows(
+                IllegalArgumentException.class,
+                () -> service.invia(richiesta.getId(), "mittente1", "   ")
+        );
+    }
+
+    /**
+     * Verifica che un utente non partecipante non possa inviare messaggi.
+     */
+    @Test
+    void inviaConUtenteNonPartecipanteRestituisceErrore() {
+
+        Annuncio annuncio = annuncioService.crea(
+                "autore1", "Titolo", "Descrizione",
+                "Categoria", "Sì", "Cambio"
+        );
+
+        RichiestaScambio richiesta = richiestaScambioService.invia(
+                annuncio.getId(), "mittente1", "Messaggio richiesta"
+        );
+
+        richiestaScambioService.accetta(richiesta.getId(), "autore1");
+
+        assertThrows(
+                IllegalArgumentException.class,
+                () -> service.invia(richiesta.getId(), "estraneo1", "Ciao")
+        );
+    }
+
+    /**
+     * Verifica che non si possa inviare un messaggio in una chat
+     * di una richiesta non ancora accettata.
+     */
+    @Test
+    void inviaConRichiestaInAttesaRestituisceErrore() {
+
+        Annuncio annuncio = annuncioService.crea(
+                "autore1", "Titolo", "Descrizione",
+                "Categoria", "Sì", "Cambio"
+        );
+
+        RichiestaScambio richiesta = richiestaScambioService.invia(
+                annuncio.getId(), "mittente1", "Messaggio richiesta"
+        );
+
+        assertThrows(
+                IllegalArgumentException.class,
+                () -> service.invia(richiesta.getId(), "mittente1", "Ciao")
+        );
+    }
+
+    /**
+     * Verifica che i messaggi inviati compaiano poi nella cronologia
+     * restituita da apriChat.
+     */
+    @Test
+    void messaggioInviatoCompareNellaCronologia() {
+
+        Annuncio annuncio = annuncioService.crea(
+                "autore1", "Titolo", "Descrizione",
+                "Categoria", "Sì", "Cambio"
+        );
+
+        RichiestaScambio richiesta = richiestaScambioService.invia(
+                annuncio.getId(), "mittente1", "Messaggio richiesta"
+        );
+
+        richiestaScambioService.accetta(richiesta.getId(), "autore1");
+
+        service.invia(richiesta.getId(), "mittente1", "Primo messaggio");
+        service.invia(richiesta.getId(), "autore1", "Risposta");
+
+        List<Messaggio> cronologia = service.apriChat(richiesta.getId(), "mittente1");
+
+        assertEquals(2, cronologia.size());
+    }
 }

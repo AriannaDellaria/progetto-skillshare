@@ -135,4 +135,35 @@ public class RichiestaScambioServiceImpl extends RemoteServiceServlet implements
 
         return richiesta;
     }
+
+    /**
+     * Recupera una richiesta di scambio, verificando che l'utente
+     * indicato ne sia partecipante (mittente o proprietario).
+     */
+    @Override
+    public RichiestaScambio trovaPerId(String idRichiesta, String idUtenteCorrente) throws IllegalArgumentException {
+
+        if (idRichiesta == null || idRichiesta.trim().isEmpty()) {
+            throw new IllegalArgumentException("Richiesta non valida.");
+        }
+
+        if (idUtenteCorrente == null || idUtenteCorrente.trim().isEmpty()) {
+            throw new IllegalArgumentException("Devi effettuare l'accesso.");
+        }
+
+        RichiestaScambio richiesta = richiestaScambioRepository.trovaPerId(idRichiesta);
+
+        if (richiesta == null) {
+            throw new IllegalArgumentException("La richiesta selezionata non esiste più.");
+        }
+
+        boolean partecipa = idUtenteCorrente.equals(richiesta.getIdMittente())
+                || idUtenteCorrente.equals(richiesta.getIdProprietario());
+
+        if (!partecipa) {
+            throw new IllegalArgumentException("Non sei autorizzato a visualizzare questa richiesta.");
+        }
+
+        return richiesta;
+    }
 }

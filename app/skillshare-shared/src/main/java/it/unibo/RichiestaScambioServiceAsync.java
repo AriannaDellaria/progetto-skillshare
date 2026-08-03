@@ -40,4 +40,10 @@ public interface RichiestaScambioServiceAsync {
             String idUtenteCorrente,
             AsyncCallback<RichiestaScambio> callback
     );
+
+    void trovaPerId(
+            String idRichiesta,
+            String idUtenteCorrente,
+            AsyncCallback<RichiestaScambio> callback
+    );
 }

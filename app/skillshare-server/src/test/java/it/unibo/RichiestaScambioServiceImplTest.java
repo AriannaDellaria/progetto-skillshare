@@ -400,4 +400,79 @@ public class RichiestaScambioServiceImplTest {
         assertTrue(service.richiesteInviate(null).isEmpty());
         assertTrue(service.richiesteInviate("").isEmpty());
     }
+
+    /**
+     * Verifica che il mittente possa recuperare la propria richiesta.
+     */
+    @Test
+    void trovaPerIdConMittenteRestituisceLaRichiesta() {
+
+        Annuncio annuncio = annuncioService.crea(
+                "autore1", "Titolo", "Descrizione",
+                "Categoria", "Sì", "Cambio"
+        );
+
+        RichiestaScambio richiesta = service.invia(
+                annuncio.getId(), "mittente1", "Messaggio"
+        );
+
+        RichiestaScambio trovata = service.trovaPerId(richiesta.getId(), "mittente1");
+
+        assertNotNull(trovata);
+        assertEquals(richiesta.getId(), trovata.getId());
+    }
+
+    /**
+     * Verifica che il proprietario possa recuperare la richiesta.
+     */
+    @Test
+    void trovaPerIdConProprietarioRestituisceLaRichiesta() {
+
+        Annuncio annuncio = annuncioService.crea(
+                "autore1", "Titolo", "Descrizione",
+                "Categoria", "Sì", "Cambio"
+        );
+
+        RichiestaScambio richiesta = service.invia(
+                annuncio.getId(), "mittente1", "Messaggio"
+        );
+
+        RichiestaScambio trovata = service.trovaPerId(richiesta.getId(), "autore1");
+
+        assertNotNull(trovata);
+    }
+
+    /**
+     * Verifica che un utente non partecipante non possa
+     * recuperare la richiesta.
+     */
+    @Test
+    void trovaPerIdConUtenteNonPartecipanteRestituisceErrore() {
+
+        Annuncio annuncio = annuncioService.crea(
+                "autore1", "Titolo", "Descrizione",
+                "Categoria", "Sì", "Cambio"
+        );
+
+        RichiestaScambio richiesta = service.invia(
+                annuncio.getId(), "mittente1", "Messaggio"
+        );
+
+        assertThrows(
+                IllegalArgumentException.class,
+                () -> service.trovaPerId(richiesta.getId(), "estraneo1")
+        );
+    }
+
+    /**
+     * Verifica che non si possa recuperare una richiesta inesistente.
+     */
+    @Test
+    void trovaPerIdConRichiestaInesistenteRestituisceErrore() {
+
+        assertThrows(
+                IllegalArgumentException.class,
+                () -> service.trovaPerId("id-inesistente", "mittente1")
+        );
+    }
 }

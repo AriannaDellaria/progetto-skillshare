@@ -16,4 +16,11 @@ public interface MessaggioService extends RemoteService {
      * la cronologia dei messaggi.
      */
     List<Messaggio> apriChat(String idRichiesta, String idUtenteCorrente) throws IllegalArgumentException;
+
+    /**
+     * Invia un nuovo messaggio nella chat associata alla richiesta,
+     * se l'utente è autorizzato e il testo è valido.
+     */
+    Messaggio invia(String idRichiesta, String idMittente, String testo) throws IllegalArgumentException;
+
 }
