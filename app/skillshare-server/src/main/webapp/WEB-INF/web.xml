@@ -46,6 +46,16 @@
     <url-pattern>/app/messaggio</url-pattern>
   </servlet-mapping>
 
+  <!-- Espone il servizio RPC dedicato alle valutazioni. -->
+  <servlet>
+    <servlet-name>valutazioneServlet</servlet-name>
+    <servlet-class>it.unibo.ValutazioneServiceImpl</servlet-class>
+  </servlet>
+  <servlet-mapping>
+    <servlet-name>valutazioneServlet</servlet-name>
+    <url-pattern>/app/valutazione</url-pattern>
+  </servlet-mapping>
+
 	<!-- Default page to serve -->
   <welcome-file-list>
     <welcome-file>index.html</welcome-file>

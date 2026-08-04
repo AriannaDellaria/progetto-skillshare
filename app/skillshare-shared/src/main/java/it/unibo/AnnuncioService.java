@@ -35,13 +35,13 @@ public interface AnnuncioService extends RemoteService {
     /**
      * Cerca gli annunci con una determinata parola chiave.
      */
-    List<Annuncio> cerca(String keyword);
+    List<Annuncio> cerca(String keyword) throws IllegalArgumentException;
 
     /**
      * Restituisce gli annunci attivi che soddisfano i criteri
      * di filtro indicati.
      */
-    List<Annuncio> filtra(FiltroAnnunci filtro);
+    List<Annuncio> filtra(FiltroAnnunci filtro) throws IllegalArgumentException;
 
     /**
      * Ordina la lista di annunci indicata secondo il criterio scelto.
