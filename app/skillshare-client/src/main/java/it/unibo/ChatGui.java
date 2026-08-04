@@ -1,6 +1,7 @@
 package it.unibo;
 
 import com.google.gwt.core.client.GWT;
+import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.*;
 
@@ -16,9 +17,7 @@ public class ChatGui {
 
     private final String idRichiesta;
     private final Runnable azioneIndietro;
-
     private String nomeAltroPartecipante = "Altro utente";
-
     private final boolean utenteCorrenteEProprietario;
 
     public ChatGui(String idRichiesta, Runnable azioneIndietro,  boolean utenteCorrenteEProprietario) {
@@ -241,11 +240,63 @@ public class ChatGui {
                         boolean linkCondiviso = messaggi.stream().anyMatch(Messaggio::isLink);
 
                         if (linkCondiviso && utenteCorrenteEProprietario) {
-                            terminaScambioPanel.add(new Button("Termina scambio"));
+                            aggiungiBottoneTerminaScambio(utente, terminaScambioPanel);
                         }
                     }
                 }
         );
+    }
+
+    /**
+     * Aggiunge il bottone per terminare lo scambio, visibile solo al
+     * proprietario. Dopo la conferma, la richiesta viene conclusa e
+     * la chat non è più accessibile a nessuno dei due partecipanti.
+     */
+    private void aggiungiBottoneTerminaScambio(Utente utente, VerticalPanel terminaScambioPanel) {
+
+        Button terminaButton = new Button("Termina scambio");
+        Label terminaErrore = new Label();
+
+        terminaButton.addClickHandler(event -> {
+            terminaErrore.setText("");
+
+            boolean confermato = Window.confirm(
+                    "Confermi di voler terminare questo scambio? "
+                            + "La chat non sarà più accessibile."
+            );
+
+            if (!confermato) {
+                return;
+            }
+
+            terminaButton.setEnabled(false);
+
+            richiestaScambioService.termina(
+                    idRichiesta,
+                    utente.getId(),
+                    new AsyncCallback<RichiestaScambio>() {
+
+                        @Override
+                        public void onFailure(Throwable caught) {
+                            terminaButton.setEnabled(true);
+                            terminaErrore.setText(
+                                    caught.getMessage() != null
+                                            ? caught.getMessage()
+                                            : "Errore durante la chiusura dello scambio."
+                            );
+                        }
+
+                        @Override
+                        public void onSuccess(RichiestaScambio richiestaConclusa) {
+                            // La chat non è più accessibile, torna alla schermata precedente.
+                            azioneIndietro.run();
+                        }
+                    }
+            );
+        });
+
+        terminaScambioPanel.add(terminaButton);
+        terminaScambioPanel.add(terminaErrore);
     }
 
     private Widget creaLabelMessaggio(Messaggio messaggio, Utente utente) {

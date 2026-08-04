@@ -475,4 +475,157 @@ public class RichiestaScambioServiceImplTest {
                 () -> service.trovaPerId("id-inesistente", "mittente1")
         );
     }
+
+    /**
+     * Verifica che il proprietario possa terminare correttamente
+     * uno scambio accettato.
+     */
+    @Test
+    void terminaConProprietarioERichiestaAccettataAggiornaLoStato() {
+
+        Annuncio annuncio = annuncioService.crea(
+                "autore1", "Titolo", "Descrizione",
+                "Categoria", "Sì", "Cambio"
+        );
+
+        RichiestaScambio richiesta = service.invia(
+                annuncio.getId(), "mittente1", "Messaggio"
+        );
+
+        service.accetta(richiesta.getId(), "autore1");
+
+        RichiestaScambio conclusa = service.termina(richiesta.getId(), "autore1");
+
+        assertEquals(StatoRichiesta.CONCLUSA, conclusa.getStato());
+    }
+
+    /**
+     * Verifica che il mittente non possa terminare lo scambio,
+     * anche se la richiesta è stata accettata.
+     */
+    @Test
+    void terminaConMittenteRestituisceErrore() {
+
+        Annuncio annuncio = annuncioService.crea(
+                "autore1", "Titolo", "Descrizione",
+                "Categoria", "Sì", "Cambio"
+        );
+
+        RichiestaScambio richiesta = service.invia(
+                annuncio.getId(), "mittente1", "Messaggio"
+        );
+
+        service.accetta(richiesta.getId(), "autore1");
+
+        assertThrows(
+                IllegalArgumentException.class,
+                () -> service.termina(richiesta.getId(), "mittente1")
+        );
+    }
+
+    /**
+     * Verifica che un utente estraneo non possa terminare lo scambio.
+     */
+    @Test
+    void terminaConUtenteEstraneoRestituisceErrore() {
+
+        Annuncio annuncio = annuncioService.crea(
+                "autore1", "Titolo", "Descrizione",
+                "Categoria", "Sì", "Cambio"
+        );
+
+        RichiestaScambio richiesta = service.invia(
+                annuncio.getId(), "mittente1", "Messaggio"
+        );
+
+        service.accetta(richiesta.getId(), "autore1");
+
+        assertThrows(
+                IllegalArgumentException.class,
+                () -> service.termina(richiesta.getId(), "estraneo1")
+        );
+    }
+
+    /**
+     * Verifica che non si possa terminare una richiesta ancora
+     * in attesa, mai accettata.
+     */
+    @Test
+    void terminaConRichiestaInAttesaRestituisceErrore() {
+
+        Annuncio annuncio = annuncioService.crea(
+                "autore1", "Titolo", "Descrizione",
+                "Categoria", "Sì", "Cambio"
+        );
+
+        RichiestaScambio richiesta = service.invia(
+                annuncio.getId(), "mittente1", "Messaggio"
+        );
+
+        assertThrows(
+                IllegalArgumentException.class,
+                () -> service.termina(richiesta.getId(), "autore1")
+        );
+    }
+
+    /**
+     * Verifica che non si possa terminare una richiesta
+     * già rifiutata.
+     */
+    @Test
+    void terminaConRichiestaRifiutataRestituisceErrore() {
+
+        Annuncio annuncio = annuncioService.crea(
+                "autore1", "Titolo", "Descrizione",
+                "Categoria", "Sì", "Cambio"
+        );
+
+        RichiestaScambio richiesta = service.invia(
+                annuncio.getId(), "mittente1", "Messaggio"
+        );
+
+        service.rifiuta(richiesta.getId(), "autore1");
+
+        assertThrows(
+                IllegalArgumentException.class,
+                () -> service.termina(richiesta.getId(), "autore1")
+        );
+    }
+
+    /**
+     * Verifica che non si possa terminare due volte lo stesso
+     * scambio già concluso.
+     */
+    @Test
+    void terminaConRichiestaGiaConclusaRestituisceErrore() {
+
+        Annuncio annuncio = annuncioService.crea(
+                "autore1", "Titolo", "Descrizione",
+                "Categoria", "Sì", "Cambio"
+        );
+
+        RichiestaScambio richiesta = service.invia(
+                annuncio.getId(), "mittente1", "Messaggio"
+        );
+
+        service.accetta(richiesta.getId(), "autore1");
+        service.termina(richiesta.getId(), "autore1");
+
+        assertThrows(
+                IllegalArgumentException.class,
+                () -> service.termina(richiesta.getId(), "autore1")
+        );
+    }
+
+    /**
+     * Verifica che non si possa terminare una richiesta inesistente.
+     */
+    @Test
+    void terminaConRichiestaInesistenteRestituisceErrore() {
+
+        assertThrows(
+                IllegalArgumentException.class,
+                () -> service.termina("id-inesistente", "autore1")
+        );
+    }
 }

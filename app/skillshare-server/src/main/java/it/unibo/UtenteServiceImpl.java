@@ -35,7 +35,7 @@ public class UtenteServiceImpl extends RemoteServiceServlet implements UtenteSer
             String nomeUtente,
             String email,
             String password
-    ) {
+    ) throws IllegalArgumentException {
         try {
             return gestoreRegistrazione.registra(
                     nomeUtente,

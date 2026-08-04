@@ -87,21 +87,24 @@ public class RegistrazioneGui {
                     new AsyncCallback<Boolean>() {
 
                         @Override
-                        public void onFailure(
-                                Throwable caught
-                        ) {
+                        public void onFailure(Throwable caught) {
                             registraButton.setEnabled(true);
 
+                            if (caught instanceof IllegalArgumentException
+                                    && caught.getMessage() != null
+                                    && !caught.getMessage().trim().isEmpty()) {
+
+                                messaggio.setText(caught.getMessage());
+                                return;
+                            }
+
                             messaggio.setText(
-                                    "Errore durante il controllo "
-                                            + "dell'email."
+                                    "Non è stato possibile completare la registrazione."
                             );
                         }
 
                         @Override
-                        public void onSuccess(
-                                Boolean giaRegistrata
-                        ) {
+                        public void onSuccess(Boolean giaRegistrata) {
                             if (Boolean.TRUE.equals(
                                     giaRegistrata
                             )) {

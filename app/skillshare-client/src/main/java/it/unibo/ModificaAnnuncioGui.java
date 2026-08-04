@@ -131,6 +131,14 @@ public class ModificaAnnuncioGui {
                         public void onFailure(Throwable caught) {
                             salvaButton.setEnabled(true);
 
+                            if (caught instanceof IllegalArgumentException
+                                    && caught.getMessage() != null
+                                    && !caught.getMessage().trim().isEmpty()) {
+
+                                messaggio.setText(caught.getMessage());
+                                return;
+                            }
+
                             messaggio.setText(
                                     "Errore durante la modifica."
                             );

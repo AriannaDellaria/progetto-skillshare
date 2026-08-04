@@ -7,7 +7,8 @@ public enum StatoRichiesta {
 
     IN_ATTESA("In attesa"),
     ACCETTATA("Accettata"),
-    RIFIUTATA("Rifiutata");
+    RIFIUTATA("Rifiutata"),
+    CONCLUSA("Conclusa");
 
     private final String etichetta;
 

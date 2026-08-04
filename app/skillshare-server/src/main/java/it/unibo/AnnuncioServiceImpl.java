@@ -26,7 +26,7 @@ public class AnnuncioServiceImpl extends RemoteServiceServlet implements Annunci
             String categoria,
             String disponibilita,
             String controprestazione
-    ) {
+    ) throws IllegalArgumentException {
         if (idAutore == null || idAutore.trim().isEmpty()) {
             throw new IllegalArgumentException("Devi effettuare l'accesso per pubblicare un annuncio.");
         }
@@ -150,7 +150,7 @@ public class AnnuncioServiceImpl extends RemoteServiceServlet implements Annunci
             String descrizione,
             String disponibilita,
             String controprestazione
-    ) {
+    ) throws IllegalArgumentException {
         if (idAnnuncio == null || idAnnuncio.trim().isEmpty()) {
             throw new IllegalArgumentException(
                     "Annuncio non valido."

@@ -366,4 +366,104 @@ public class MessaggioServiceImplTest {
                 () -> service.condividiLink(richiesta.getId(), "autore1", "https://esempio.it")
         );
     }
+
+    /**
+     * Verifica che non si possa più accedere alla chat (apriChat)
+     * di uno scambio dopo che è stato terminato.
+     */
+    @Test
+    void apriChatConRichiestaConclusaRestituisceErrore() {
+
+        Annuncio annuncio = annuncioService.crea(
+                "autore1", "Titolo", "Descrizione",
+                "Categoria", "Sì", "Cambio"
+        );
+
+        RichiestaScambio richiesta = richiestaScambioService.invia(
+                annuncio.getId(), "mittente1", "Messaggio"
+        );
+
+        richiestaScambioService.accetta(richiesta.getId(), "autore1");
+        richiestaScambioService.termina(richiesta.getId(), "autore1");
+
+        assertThrows(
+                IllegalArgumentException.class,
+                () -> service.apriChat(richiesta.getId(), "mittente1")
+        );
+    }
+
+    /**
+     * Verifica che non si possano più inviare messaggi in una chat
+     * dopo che lo scambio è stato terminato.
+     */
+    @Test
+    void inviaConRichiestaConclusaRestituisceErrore() {
+
+        Annuncio annuncio = annuncioService.crea(
+                "autore1", "Titolo", "Descrizione",
+                "Categoria", "Sì", "Cambio"
+        );
+
+        RichiestaScambio richiesta = richiestaScambioService.invia(
+                annuncio.getId(), "mittente1", "Messaggio"
+        );
+
+        richiestaScambioService.accetta(richiesta.getId(), "autore1");
+        richiestaScambioService.termina(richiesta.getId(), "autore1");
+
+        assertThrows(
+                IllegalArgumentException.class,
+                () -> service.invia(richiesta.getId(), "mittente1", "Ciao")
+        );
+    }
+
+    /**
+     * Verifica che non si possa più condividere un link
+     * dopo che lo scambio è stato terminato.
+     */
+    @Test
+    void condividiLinkConRichiestaConclusaRestituisceErrore() {
+
+        Annuncio annuncio = annuncioService.crea(
+                "autore1", "Titolo", "Descrizione",
+                "Categoria", "Sì", "Cambio"
+        );
+
+        RichiestaScambio richiesta = richiestaScambioService.invia(
+                annuncio.getId(), "mittente1", "Messaggio"
+        );
+
+        richiestaScambioService.accetta(richiesta.getId(), "autore1");
+        richiestaScambioService.termina(richiesta.getId(), "autore1");
+
+        assertThrows(
+                IllegalArgumentException.class,
+                () -> service.condividiLink(richiesta.getId(), "autore1", "https://esempio.it")
+        );
+    }
+
+    /**
+     * Verifica che il blocco valga anche per il proprietario,
+     * non solo per il mittente, dopo la conclusione dello scambio.
+     */
+    @Test
+    void apriChatConProprietarioERichiestaConclusaRestituisceErrore() {
+
+        Annuncio annuncio = annuncioService.crea(
+                "autore1", "Titolo", "Descrizione",
+                "Categoria", "Sì", "Cambio"
+        );
+
+        RichiestaScambio richiesta = richiestaScambioService.invia(
+                annuncio.getId(), "mittente1", "Messaggio"
+        );
+
+        richiestaScambioService.accetta(richiesta.getId(), "autore1");
+        richiestaScambioService.termina(richiesta.getId(), "autore1");
+
+        assertThrows(
+                IllegalArgumentException.class,
+                () -> service.apriChat(richiesta.getId(), "autore1")
+        );
+    }
 }
