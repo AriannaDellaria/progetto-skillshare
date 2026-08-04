@@ -46,4 +46,10 @@ public interface RichiestaScambioServiceAsync {
             String idUtenteCorrente,
             AsyncCallback<RichiestaScambio> callback
     );
+
+    void termina(
+            String idRichiesta,
+            String idUtenteCorrente,
+            AsyncCallback<RichiestaScambio> callback
+    );
 }

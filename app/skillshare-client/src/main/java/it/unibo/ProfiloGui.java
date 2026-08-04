@@ -138,6 +138,15 @@ public class ProfiloGui {
 
                                 @Override
                                 public void onFailure(Throwable caught) {
+
+                                    if (caught instanceof IllegalArgumentException
+                                            && caught.getMessage() != null
+                                            && !caught.getMessage().trim().isEmpty()) {
+
+                                        messaggio.setText(caught.getMessage());
+                                        return;
+                                    }
+
                                     messaggio.setText("Errore durante il salvataggio");
                                 }
 

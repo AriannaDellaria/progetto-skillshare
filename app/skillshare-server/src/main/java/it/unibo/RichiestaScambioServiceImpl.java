@@ -105,6 +105,15 @@ public class RichiestaScambioServiceImpl extends RemoteServiceServlet implements
     }
 
     /**
+     * Termina uno scambio accettato, se consentito.
+     */
+    @Override
+    public RichiestaScambio termina(String idRichiesta, String idUtenteCorrente) throws IllegalArgumentException {
+        RichiestaScambio richiesta = validaTerminazioneScambio(idRichiesta, idUtenteCorrente);
+        return richiestaScambioRepository.aggiornaStato(richiesta.getId(), StatoRichiesta.CONCLUSA);
+    }
+
+    /**
      * Valida che l'utente possa accettare/rifiutare la richiesta indicata:
      * la richiesta deve esistere, l'utente deve esserne il destinatario,
      * e la richiesta deve essere ancora in attesa.
@@ -131,6 +140,38 @@ public class RichiestaScambioServiceImpl extends RemoteServiceServlet implements
 
         if (richiesta.getStato() != StatoRichiesta.IN_ATTESA) {
             throw new IllegalArgumentException("Questa richiesta è già stata gestita.");
+        }
+
+        return richiesta;
+    }
+
+    /**
+     * Valida che l'utente possa terminare lo scambio indicato:
+     * la richiesta deve esistere, l'utente deve esserne il
+     * proprietario, e lo scambio deve essere attualmente accettato.
+     */
+    private RichiestaScambio validaTerminazioneScambio(String idRichiesta, String idUtenteCorrente) {
+
+        if (idRichiesta == null || idRichiesta.trim().isEmpty()) {
+            throw new IllegalArgumentException("Richiesta non valida.");
+        }
+
+        if (idUtenteCorrente == null || idUtenteCorrente.trim().isEmpty()) {
+            throw new IllegalArgumentException("Devi effettuare l'accesso per terminare uno scambio.");
+        }
+
+        RichiestaScambio richiesta = richiestaScambioRepository.trovaPerId(idRichiesta);
+
+        if (richiesta == null) {
+            throw new IllegalArgumentException("La richiesta selezionata non esiste più.");
+        }
+
+        if (!idUtenteCorrente.equals(richiesta.getIdProprietario())) {
+            throw new IllegalArgumentException("Solo chi ha pubblicato l'annuncio può terminare lo scambio.");
+        }
+
+        if (richiesta.getStato() != StatoRichiesta.ACCETTATA) {
+            throw new IllegalArgumentException("Solo uno scambio accettato può essere terminato.");
         }
 
         return richiesta;

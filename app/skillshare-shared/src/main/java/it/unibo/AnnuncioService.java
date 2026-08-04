@@ -20,7 +20,7 @@ public interface AnnuncioService extends RemoteService {
             String categoria,
             String disponibilita,
             String controprestazione
-    );
+    ) throws IllegalArgumentException;
 
     /**
      * Recupera gli annunci dell'utente autenticato.
@@ -59,7 +59,7 @@ public interface AnnuncioService extends RemoteService {
             String descrizione,
             String disponibilita,
             String controprestazione
-    );
+    )throws IllegalArgumentException;
 
     /**
      * Disattiva un annuncio dell'autore.

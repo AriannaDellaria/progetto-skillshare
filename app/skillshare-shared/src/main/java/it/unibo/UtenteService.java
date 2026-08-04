@@ -18,7 +18,7 @@ public interface UtenteService extends RemoteService {
             String nomeUtente,
             String email,
             String password
-    );
+    ) throws IllegalArgumentException;
 
     /**
      * Controlla se l'email è già associata a un account.
