@@ -25,4 +25,3 @@ public class ValidatoreLink {
         return valore.matches("^https?://[\\w-]+(\\.[\\w-]+)+.*$");
     }
 }
-
