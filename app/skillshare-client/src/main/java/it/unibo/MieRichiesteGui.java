@@ -156,7 +156,8 @@ public class MieRichiesteGui {
         );
     }
 
-    // Crea il bottone e il form unico per assegnare il punteggi.
+    // Crea il bottone e il form unico per assegnare il punteggio
+    // e commento facoltativo allo scambio concluso indicato..
     private VerticalPanel creaSezioneValutazione(RichiestaScambio richiesta) {
         VerticalPanel sezione = new VerticalPanel();
         sezione.setSpacing(5);
@@ -170,6 +171,15 @@ public class MieRichiesteGui {
         punteggioBox.getElement().setPropertyString(
                 "placeholder",
                 "Da " + Valutazione.PUNTEGGIO_MINIMO + " a " + Valutazione.PUNTEGGIO_MASSIMO
+        );
+
+        TextArea commentoBox = new TextArea();
+        commentoBox.setVisibleLines(3);
+        commentoBox.setCharacterWidth(40);
+        commentoBox.getElement().setPropertyString(
+                "placeholder",
+                "Commento (facoltativo, max "
+                        + Valutazione.COMMENTO_LUNGHEZZA_MASSIMA + " caratteri)"
         );
 
         Button salvaButton = new Button("Salva");
@@ -208,12 +218,23 @@ public class MieRichiesteGui {
                 return;
             }
 
+            String commento = commentoBox.getText().trim();
+
+            if (commento.length() > Valutazione.COMMENTO_LUNGHEZZA_MASSIMA) {
+                esitoValutazione.setText(
+                        "Il commento non può superare "
+                                + Valutazione.COMMENTO_LUNGHEZZA_MASSIMA + " caratteri."
+                );
+                return;
+            }
+
             salvaButton.setEnabled(false);
 
             valutazioneService.assegna(
                     richiesta.getId(),
                     utente.getId(),
                     punteggio,
+                    commento,
                     new AsyncCallback<Valutazione>() {
 
                         @Override
@@ -236,6 +257,7 @@ public class MieRichiesteGui {
 
                             esitoValutazione.setText("Valutazione inserita correttamente.");
                             punteggioBox.setEnabled(false);
+                            commentoBox.setEnabled(false);
                             salvaButton.setEnabled(false);
                         }
                     }
@@ -243,6 +265,7 @@ public class MieRichiesteGui {
         });
 
         formPanel.add(punteggioBox);
+        formPanel.add(commentoBox);
         formPanel.add(salvaButton);
         formPanel.add(esitoValutazione);
 

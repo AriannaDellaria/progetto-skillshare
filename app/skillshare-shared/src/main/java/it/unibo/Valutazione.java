@@ -16,11 +16,14 @@ public class Valutazione implements Serializable {
     public static final int PUNTEGGIO_MINIMO = 1;
     public static final int PUNTEGGIO_MASSIMO = 10;
 
+    public static final int COMMENTO_LUNGHEZZA_MASSIMA = 200;
+
     private String id;
     private String idRichiesta;
     private String idMittente;
     private String idUtenteValutato;
     private int punteggio;
+    private String commento;
     private TipoValutazione tipo;
     private long dataValutazione;
 
@@ -39,6 +42,7 @@ public class Valutazione implements Serializable {
             String idMittente,
             String idUtenteValutato,
             int punteggio,
+            String commento,
             TipoValutazione tipo
     ) {
         this.id = id;
@@ -46,6 +50,7 @@ public class Valutazione implements Serializable {
         this.idMittente = idMittente;
         this.idUtenteValutato = idUtenteValutato;
         this.punteggio = punteggio;
+        this.commento = commento;
         this.tipo = tipo;
         this.dataValutazione = System.currentTimeMillis();
     }
@@ -68,6 +73,10 @@ public class Valutazione implements Serializable {
 
     public int getPunteggio() {
         return punteggio;
+    }
+
+    public String getCommento() {
+        return commento;
     }
 
     public TipoValutazione getTipo() {
@@ -96,6 +105,10 @@ public class Valutazione implements Serializable {
 
     public void setPunteggio(int punteggio) {
         this.punteggio = punteggio;
+    }
+
+    public void setCommento(String commento) {
+        this.commento = commento;
     }
 
     public void setTipo(TipoValutazione tipo) {

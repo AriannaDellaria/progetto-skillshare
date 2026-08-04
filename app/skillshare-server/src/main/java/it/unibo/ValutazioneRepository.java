@@ -28,6 +28,7 @@ public class ValutazioneRepository {
             String idMittente,
             String idUtenteValutato,
             int punteggio,
+            String commento,
             TipoValutazione tipo
     ) {
         String id = UUID.randomUUID().toString();
@@ -38,6 +39,7 @@ public class ValutazioneRepository {
                 idMittente,
                 idUtenteValutato,
                 punteggio,
+                commento,
                 tipo
         );
 

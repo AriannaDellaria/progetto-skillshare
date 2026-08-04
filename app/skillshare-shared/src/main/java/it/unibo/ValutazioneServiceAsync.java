@@ -12,6 +12,7 @@ public interface ValutazioneServiceAsync {
             String idRichiesta,
             String idUtenteCorrente,
             int punteggio,
+            String commento,
             AsyncCallback<Valutazione> callback
     );
 

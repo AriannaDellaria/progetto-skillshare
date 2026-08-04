@@ -20,7 +20,8 @@ public class ValutazioneServiceImpl
     public Valutazione assegna(
             String idRichiesta,
             String idUtenteCorrente,
-            int punteggio
+            int punteggio,
+            String commento
     ) {
         // Validazione parametri di input
         if (idRichiesta == null || idRichiesta.trim().isEmpty()) {
@@ -32,6 +33,13 @@ public class ValutazioneServiceImpl
         }
 
         if (punteggio < Valutazione.PUNTEGGIO_MINIMO || punteggio > Valutazione.PUNTEGGIO_MASSIMO) {
+            return null;
+        }
+
+        // Il commento è facoltativo, ma se presente non deve
+        // superare la lunghezza massima consentita.
+        String commentoPulito = commento == null ? "" : commento.trim();
+        if (commentoPulito.length() > Valutazione.COMMENTO_LUNGHEZZA_MASSIMA) {
             return null;
         }
 
@@ -62,6 +70,7 @@ public class ValutazioneServiceImpl
                 idUtenteCorrente,
                 direzione.idUtenteValutato,
                 punteggio,
+                commentoPulito,
                 direzione.tipo
         );
     }

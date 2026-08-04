@@ -10,14 +10,15 @@ import com.google.gwt.user.client.rpc.RemoteServiceRelativePath;
 public interface ValutazioneService extends RemoteService {
 
     /**
-     * Assegna una valutazione numerica al termine di uno scambio
-     * concluso. Il destinatario della valutazione è il
+     * Assegna una valutazione numerica, con commento facoltativo, al
+     * termine di uno scambio concluso. Il destinatario della valutazione è il
      * proprietario dell'annuncio associato alla richiesta.
      */
     Valutazione assegna(
             String idRichiesta,
             String idUtenteCorrente,
-            int punteggio
+            int punteggio,
+            String commento
     );
 
     /**

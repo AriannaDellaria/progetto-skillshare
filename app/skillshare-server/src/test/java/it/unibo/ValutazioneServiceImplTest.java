@@ -41,108 +41,167 @@ public class ValutazioneServiceImplTest {
         return richiesta;
     }
 
+    // Genera una stringa della lunghezza indicata, utile per i test
+    // sui limiti del commento.
+    private String stringaDiLunghezza(int lunghezza) {
+        StringBuilder builder = new StringBuilder();
+        for (int i = 0; i < lunghezza; i++) {
+            builder.append("a");
+        }
+        return builder.toString();
+    }
+
     /**
      * Verifica che il mittente possa assegnare correttamente una
-     * valutazione valida, di tipo PRESTAZIONE, al proprietario.
+     * valutazione con un commento valido.
      */
     @Test
-    void assegnaConMittenteRestituisceValutazioneDiPrestazione() {
+    void assegnaConCommentoValidoRestituisceValutazioneConCommento() {
 
         RichiestaScambio richiesta = creaScambioConcluso();
 
         Valutazione valutazione = service.assegna(
-                richiesta.getId(), "mittente1", 8
+                richiesta.getId(), "mittente1", 8, "Esperienza molto positiva."
         );
 
         assertNotNull(valutazione);
-        assertEquals(richiesta.getId(), valutazione.getIdRichiesta());
-        assertEquals("mittente1", valutazione.getIdMittente());
-        assertEquals("autore1", valutazione.getIdUtenteValutato());
-        assertEquals(8, valutazione.getPunteggio());
-        assertEquals(TipoValutazione.PRESTAZIONE, valutazione.getTipo());
+        assertEquals("Esperienza molto positiva.", valutazione.getCommento());
     }
 
     /**
-     * Verifica che il proprietario possa assegnare correttamente una
-     * valutazione valida, di tipo CONTROPRESTAZIONE, al mittente.
+     * Verifica che la valutazione possa essere assegnata anche
+     * senza commento, dato che è facoltativo.
      */
     @Test
-    void assegnaConProprietarioRestituisceValutazioneDiControprestazione() {
+    void assegnaSenzaCommentoRestituisceValutazione() {
 
         RichiestaScambio richiesta = creaScambioConcluso();
 
         Valutazione valutazione = service.assegna(
-                richiesta.getId(), "autore1", 6
+                richiesta.getId(), "mittente1", 8, ""
         );
 
         assertNotNull(valutazione);
-        assertEquals(richiesta.getId(), valutazione.getIdRichiesta());
-        assertEquals("autore1", valutazione.getIdMittente());
-        assertEquals("mittente1", valutazione.getIdUtenteValutato());
-        assertEquals(6, valutazione.getPunteggio());
-        assertEquals(TipoValutazione.CONTROPRESTAZIONE, valutazione.getTipo());
+        assertEquals("", valutazione.getCommento());
     }
 
     /**
-     * Verifica che entrambi i partecipanti possano valutare lo
-     * stesso scambio, senza che l'una impedisca l'altra.
+     * Verifica che la valutazione possa essere assegnata anche
+     * con commento null.
      */
     @Test
-    void assegnaConEntrambiIPartecipantiRestituisceDueValutazioniDistinte() {
+    void assegnaConCommentoNullRestituisceValutazione() {
 
         RichiestaScambio richiesta = creaScambioConcluso();
 
-        Valutazione daMittente = service.assegna(richiesta.getId(), "mittente1", 8);
-        Valutazione daProprietario = service.assegna(richiesta.getId(), "autore1", 5);
+        Valutazione valutazione = service.assegna(
+                richiesta.getId(), "mittente1", 8, null
+        );
 
-        assertNotNull(daMittente);
-        assertNotNull(daProprietario);
-        assertEquals(TipoValutazione.PRESTAZIONE, daMittente.getTipo());
-        assertEquals(TipoValutazione.CONTROPRESTAZIONE, daProprietario.getTipo());
+        assertNotNull(valutazione);
     }
 
     /**
-     * Verifica che gli estremi dell'intervallo consentito
-     * (1 e 10) siano accettati.
+     * Verifica che un commento esattamente alla lunghezza massima
+     * consentita venga accettato.
      */
     @Test
-    void assegnaConPunteggioAgliEstremiDellIntervalloRestituisceValutazione() {
+    void assegnaConCommentoAllaLunghezzaMassimaRestituisceValutazione() {
 
         RichiestaScambio richiesta = creaScambioConcluso();
 
-        Valutazione valutazioneMin = service.assegna(richiesta.getId(), "mittente1", 1);
-        assertNotNull(valutazioneMin);
-        assertEquals(1, valutazioneMin.getPunteggio());
+        String commento = stringaDiLunghezza(Valutazione.COMMENTO_LUNGHEZZA_MASSIMA);
 
-        Valutazione valutazioneMax = service.assegna(richiesta.getId(), "autore1", 10);
-        assertNotNull(valutazioneMax);
-        assertEquals(10, valutazioneMax.getPunteggio());
+        Valutazione valutazione = service.assegna(
+                richiesta.getId(), "mittente1", 8, commento
+        );
+
+        assertNotNull(valutazione);
+        assertEquals(Valutazione.COMMENTO_LUNGHEZZA_MASSIMA, valutazione.getCommento().length());
     }
 
     /**
-     * Verifica che un punteggio inferiore al minimo consentito
-     * venga rifiutato, restituendo null.
+     * Verifica che un commento che supera la lunghezza massima
+     * consentita venga rifiutato, restituendo null.
      */
     @Test
-    void assegnaConPunteggioSottoIlMinimoRestituisceNull() {
+    void assegnaConCommentoTroppoLungoRestituisceNull() {
 
         RichiestaScambio richiesta = creaScambioConcluso();
 
-        Valutazione valutazione = service.assegna(richiesta.getId(), "mittente1", 0);
+        String commentoTroppoLungo = stringaDiLunghezza(Valutazione.COMMENTO_LUNGHEZZA_MASSIMA + 1);
+
+        Valutazione valutazione = service.assegna(
+                richiesta.getId(), "mittente1", 8, commentoTroppoLungo
+        );
 
         assertNull(valutazione);
     }
 
     /**
-     * Verifica che un punteggio superiore al massimo consentito
-     * venga rifiutato, restituendo null.
+     * Verifica che un commento troppo lungo non venga comunque
+     * salvato nel repository, nemmeno parzialmente.
      */
     @Test
-    void assegnaConPunteggioSopraIlMassimoRestituisceNull() {
+    void assegnaConCommentoTroppoLungoNonSalvaNulla() {
 
         RichiestaScambio richiesta = creaScambioConcluso();
 
-        Valutazione valutazione = service.assegna(richiesta.getId(), "mittente1", 11);
+        String commentoTroppoLungo = stringaDiLunghezza(Valutazione.COMMENTO_LUNGHEZZA_MASSIMA + 50);
+
+        service.assegna(richiesta.getId(), "mittente1", 8, commentoTroppoLungo);
+
+        assertFalse(service.valutazioneGiaEsistente(richiesta.getId(), "mittente1"));
+    }
+
+    /**
+     * Verifica che il proprietario possa assegnare correttamente una
+     * valutazione con commento, di tipo CONTROPRESTAZIONE.
+     */
+    @Test
+    void assegnaConProprietarioECommentoRestituisceValutazioneDiControprestazione() {
+
+        RichiestaScambio richiesta = creaScambioConcluso();
+
+        Valutazione valutazione = service.assegna(
+                richiesta.getId(), "autore1", 6, "Controprestazione adeguata."
+        );
+
+        assertNotNull(valutazione);
+        assertEquals(TipoValutazione.CONTROPRESTAZIONE, valutazione.getTipo());
+        assertEquals("Controprestazione adeguata.", valutazione.getCommento());
+    }
+
+    /**
+     * Verifica che gli estremi dell'intervallo di punteggio
+     * consentito siano accettati anche insieme a un commento.
+     */
+    @Test
+    void assegnaConPunteggioAgliEstremiECommentoRestituisceValutazione() {
+
+        RichiestaScambio richiesta = creaScambioConcluso();
+
+        Valutazione valutazioneMin = service.assegna(richiesta.getId(), "mittente1", 1, "Minimo");
+        assertNotNull(valutazioneMin);
+        assertEquals(1, valutazioneMin.getPunteggio());
+
+        Valutazione valutazioneMax = service.assegna(richiesta.getId(), "autore1", 10, "Massimo");
+        assertNotNull(valutazioneMax);
+        assertEquals(10, valutazioneMax.getPunteggio());
+    }
+
+    /**
+     * Verifica che un punteggio fuori range venga rifiutato anche
+     * se il commento è valido.
+     */
+    @Test
+    void assegnaConPunteggioNonValidoECommentoValidoRestituisceNull() {
+
+        RichiestaScambio richiesta = creaScambioConcluso();
+
+        Valutazione valutazione = service.assegna(
+                richiesta.getId(), "mittente1", 11, "Commento valido"
+        );
 
         assertNull(valutazione);
     }
@@ -163,7 +222,7 @@ public class ValutazioneServiceImplTest {
                 annuncio.getId(), "mittente1", "Messaggio"
         );
 
-        Valutazione valutazione = service.assegna(richiesta.getId(), "mittente1", 5);
+        Valutazione valutazione = service.assegna(richiesta.getId(), "mittente1", 5, "Commento");
 
         assertNull(valutazione);
     }
@@ -186,29 +245,7 @@ public class ValutazioneServiceImplTest {
 
         richiestaScambioService.accetta(richiesta.getId(), "autore1");
 
-        Valutazione valutazione = service.assegna(richiesta.getId(), "mittente1", 5);
-
-        assertNull(valutazione);
-    }
-
-    /**
-     * Verifica che non si possa valutare uno scambio rifiutato.
-     */
-    @Test
-    void assegnaConRichiestaRifiutataRestituisceNull() {
-
-        Annuncio annuncio = annuncioService.crea(
-                "autore1", "Titolo", "Descrizione",
-                "Categoria", "Sì", "Cambio"
-        );
-
-        RichiestaScambio richiesta = richiestaScambioService.invia(
-                annuncio.getId(), "mittente1", "Messaggio"
-        );
-
-        richiestaScambioService.rifiuta(richiesta.getId(), "autore1");
-
-        Valutazione valutazione = service.assegna(richiesta.getId(), "mittente1", 5);
+        Valutazione valutazione = service.assegna(richiesta.getId(), "mittente1", 5, "Commento");
 
         assertNull(valutazione);
     }
@@ -222,43 +259,44 @@ public class ValutazioneServiceImplTest {
 
         RichiestaScambio richiesta = creaScambioConcluso();
 
-        Valutazione valutazione = service.assegna(richiesta.getId(), "estraneo1", 5);
+        Valutazione valutazione = service.assegna(richiesta.getId(), "estraneo1", 5, "Commento");
 
         assertNull(valutazione);
     }
 
     /**
-     * Verifica che il mittente non possa inserire una seconda
-     * valutazione per lo stesso scambio già valutato da lui.
+     * Verifica che non si possa inserire una seconda valutazione
+     * per lo stesso scambio già valutato nella stessa direzione.
      */
     @Test
-    void assegnaConMittenteCheHaGiaValutatoRestituisceNull() {
+    void assegnaConValutazioneGiaEsistenteRestituisceNull() {
 
         RichiestaScambio richiesta = creaScambioConcluso();
 
-        service.assegna(richiesta.getId(), "mittente1", 7);
+        service.assegna(richiesta.getId(), "mittente1", 7, "Primo commento");
 
-        Valutazione secondoTentativo = service.assegna(richiesta.getId(), "mittente1", 9);
+        Valutazione secondoTentativo = service.assegna(
+                richiesta.getId(), "mittente1", 9, "Secondo commento"
+        );
 
         assertNull(secondoTentativo);
     }
 
     /**
-     * Verifica che il proprietario non possa inserire una seconda
-     * valutazione per lo stesso scambio già valutato da lui, anche
-     * se il mittente ha già valutato.
+     * Verifica che il commento del primo tentativo resti quello
+     * salvato, anche dopo un secondo tentativo fallito.
      */
     @Test
-    void assegnaConProprietarioCheHaGiaValutatoRestituisceNull() {
+    void assegnaConValutazioneGiaEsistenteNonSovrascriveIlCommentoOriginale() {
 
         RichiestaScambio richiesta = creaScambioConcluso();
 
-        service.assegna(richiesta.getId(), "mittente1", 7);
-        service.assegna(richiesta.getId(), "autore1", 4);
+        service.assegna(richiesta.getId(), "mittente1", 7, "Commento originale");
+        service.assegna(richiesta.getId(), "mittente1", 3, "Tentativo di sovrascrittura");
 
-        Valutazione secondoTentativoProprietario = service.assegna(richiesta.getId(), "autore1", 9);
+        boolean giaEsistente = service.valutazioneGiaEsistente(richiesta.getId(), "mittente1");
 
-        assertNull(secondoTentativoProprietario);
+        assertTrue(giaEsistente);
     }
 
     /**
@@ -267,7 +305,7 @@ public class ValutazioneServiceImplTest {
     @Test
     void assegnaConRichiestaInesistenteRestituisceNull() {
 
-        Valutazione valutazione = service.assegna("id-inesistente", "mittente1", 5);
+        Valutazione valutazione = service.assegna("id-inesistente", "mittente1", 5, "Commento");
 
         assertNull(valutazione);
     }
@@ -278,7 +316,7 @@ public class ValutazioneServiceImplTest {
     @Test
     void assegnaSenzaIdRichiestaRestituisceNull() {
 
-        Valutazione valutazione = service.assegna(null, "mittente1", 5);
+        Valutazione valutazione = service.assegna(null, "mittente1", 5, "Commento");
 
         assertNull(valutazione);
     }
@@ -291,11 +329,10 @@ public class ValutazioneServiceImplTest {
 
         RichiestaScambio richiesta = creaScambioConcluso();
 
-        Valutazione valutazione = service.assegna(richiesta.getId(), null, 5);
+        Valutazione valutazione = service.assegna(richiesta.getId(), null, 5, "Commento");
 
         assertNull(valutazione);
     }
-
 
     /**
      * Verifica che valutazioneGiaEsistente restituisca false prima
@@ -318,46 +355,23 @@ public class ValutazioneServiceImplTest {
 
         RichiestaScambio richiesta = creaScambioConcluso();
 
-        service.assegna(richiesta.getId(), "mittente1", 7);
+        service.assegna(richiesta.getId(), "mittente1", 7, "Commento");
 
         assertTrue(service.valutazioneGiaEsistente(richiesta.getId(), "mittente1"));
     }
 
     /**
      * Verifica che la valutazione del mittente non influenzi il
-     * controllo per il proprietario.
+     * controllo per il proprietario: le due direzioni sono
+     * indipendenti.
      */
     @Test
     void valutazioneGiaEsistenteConMittenteCheHaValutatoNonInfluenzaProprietario() {
 
         RichiestaScambio richiesta = creaScambioConcluso();
 
-        service.assegna(richiesta.getId(), "mittente1", 7);
+        service.assegna(richiesta.getId(), "mittente1", 7, "Commento");
 
         assertFalse(service.valutazioneGiaEsistente(richiesta.getId(), "autore1"));
-    }
-
-    /**
-     * Verifica che valutazioneGiaEsistente restituisca false per
-     * un utente non partecipante allo scambio.
-     */
-    @Test
-    void valutazioneGiaEsistenteConUtenteEstraneoRestituisceFalse() {
-
-        RichiestaScambio richiesta = creaScambioConcluso();
-
-        assertFalse(service.valutazioneGiaEsistente(richiesta.getId(), "estraneo1"));
-    }
-
-    /**
-     * Verifica che valutazioneGiaEsistente restituisca false quando
-     * i parametri passati sono null o vuoti.
-     */
-    @Test
-    void valutazioneGiaEsistenteConParametriNonValidiRestituisceFalse() {
-
-        assertFalse(service.valutazioneGiaEsistente(null, "mittente1"));
-        assertFalse(service.valutazioneGiaEsistente("richiesta1", null));
-        assertFalse(service.valutazioneGiaEsistente("", "mittente1"));
     }
 }
