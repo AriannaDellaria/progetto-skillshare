@@ -143,4 +143,49 @@ public class ValutazioneServiceImpl
             this.tipo = tipo;
         }
     }
+
+    /**
+     * Calcola il rating dell'utente indicato come media aritmetica
+     * delle valutazioni numeriche ricevute, distinto per prestazione
+     * e controprestazione.
+     */
+    @Override
+    public RatingUtente calcolaRating(String idUtente) {
+
+        if (idUtente == null || idUtente.trim().isEmpty()) {
+            return new RatingUtente(0, 0, 0, 0);
+        }
+
+        java.util.List<Valutazione> prestazioni =
+                valutazioneRepository.trovaPerUtenteValutatoETipo(idUtente, TipoValutazione.PRESTAZIONE);
+
+        java.util.List<Valutazione> controprestazioni =
+                valutazioneRepository.trovaPerUtenteValutatoETipo(idUtente, TipoValutazione.CONTROPRESTAZIONE);
+
+        double mediaPrestazione = calcolaMedia(prestazioni);
+        double mediaControprestazione = calcolaMedia(controprestazioni);
+
+        return new RatingUtente(
+                mediaPrestazione,
+                prestazioni.size(),
+                mediaControprestazione,
+                controprestazioni.size()
+        );
+    }
+
+    // Calcola la media aritmetica dei punteggi di una lista di
+    // valutazioni. Restituisce 0 se la lista è vuota.
+    private double calcolaMedia(java.util.List<Valutazione> valutazioni) {
+
+        if (valutazioni.isEmpty()) {
+            return 0;
+        }
+
+        int somma = 0;
+        for (Valutazione valutazione : valutazioni) {
+            somma += valutazione.getPunteggio();
+        }
+
+        return (double) somma / valutazioni.size();
+    }
 }

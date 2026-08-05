@@ -374,4 +374,171 @@ public class ValutazioneServiceImplTest {
 
         assertFalse(service.valutazioneGiaEsistente(richiesta.getId(), "autore1"));
     }
+
+    /**
+     * Verifica che calcolaRating calcoli correttamente la media
+     * delle valutazioni di prestazione ricevute da un utente.
+     */
+    @Test
+    void calcolaRatingConValutazioniDiPrestazioneCalcolaLaMediaCorretta() {
+
+        Annuncio annuncio1 = annuncioService.crea(
+                "autore1", "Titolo1", "Descrizione",
+                "Categoria", "Sì", "Cambio"
+        );
+        RichiestaScambio richiesta1 = richiestaScambioService.invia(
+                annuncio1.getId(), "mittente1", "Messaggio"
+        );
+        richiestaScambioService.accetta(richiesta1.getId(), "autore1");
+        richiestaScambioService.termina(richiesta1.getId(), "autore1");
+        service.assegna(richiesta1.getId(), "mittente1", 8, "Buono");
+
+        Annuncio annuncio2 = annuncioService.crea(
+                "autore1", "Titolo2", "Descrizione",
+                "Categoria", "Sì", "Cambio"
+        );
+        RichiestaScambio richiesta2 = richiestaScambioService.invia(
+                annuncio2.getId(), "mittente2", "Messaggio"
+        );
+        richiestaScambioService.accetta(richiesta2.getId(), "autore1");
+        richiestaScambioService.termina(richiesta2.getId(), "autore1");
+        service.assegna(richiesta2.getId(), "mittente2", 6, "Nella media");
+
+        RatingUtente rating = service.calcolaRating("autore1");
+
+        assertEquals(7.0, rating.getMediaPrestazione());
+        assertEquals(2, rating.getNumeroRecensioniPrestazione());
+    }
+
+    /**
+     * Verifica che calcolaRating calcoli correttamente la
+     * media delle valutazioni di controprestazione.
+     */
+    @Test
+    void calcolaRatingConValutazioniDiControprestazioneCalcolaLaMediaCorretta() {
+
+        RichiestaScambio richiesta = creaScambioConcluso();
+
+        service.assegna(richiesta.getId(), "autore1", 4, "Controprestazione scarsa");
+
+        RatingUtente rating = service.calcolaRating("mittente1");
+
+        assertEquals(4.0, rating.getMediaControprestazione());
+        assertEquals(1, rating.getNumeroRecensioniControprestazione());
+    }
+
+    /**
+     * Verifica che le due direzioni (prestazione e controprestazione)
+     * siano calcolate in modo indipendente per lo stesso utente,
+     * quando ricopre entrambi i ruoli in scambi diversi.
+     */
+    @Test
+    void calcolaRatingConEntrambeLeDirezioniLeTieneSeparate() {
+
+        // autore1 riceve una valutazione di prestazione da mittente1
+        RichiestaScambio richiesta1 = creaScambioConcluso();
+        service.assegna(richiesta1.getId(), "mittente1", 9, "Ottimo");
+
+        // autore1 riceve anche una valutazione di controprestazione,
+        // partecipando come mittente di un altro scambio
+        Annuncio annuncio2 = annuncioService.crea(
+                "autore2", "Titolo2", "Descrizione",
+                "Categoria", "Sì", "Cambio"
+        );
+        RichiestaScambio richiesta2 = richiestaScambioService.invia(
+                annuncio2.getId(), "autore1", "Messaggio"
+        );
+        richiestaScambioService.accetta(richiesta2.getId(), "autore2");
+        richiestaScambioService.termina(richiesta2.getId(), "autore2");
+        service.assegna(richiesta2.getId(), "autore2", 5, "Nella media");
+
+        RatingUtente rating = service.calcolaRating("autore1");
+
+        assertEquals(9.0, rating.getMediaPrestazione());
+        assertEquals(1, rating.getNumeroRecensioniPrestazione());
+        assertEquals(5.0, rating.getMediaControprestazione());
+        assertEquals(1, rating.getNumeroRecensioniControprestazione());
+    }
+
+    /**
+     * Verifica che un utente senza alcuna recensione abbia
+     * numeroRecensioni pari a zero per entrambe le direzioni, e che
+     * questo sia distinguibile da una media effettivamente pari a zero.
+     */
+    @Test
+    void calcolaRatingSenzaRecensioniRestituisceContatoriAZero() {
+
+        RatingUtente rating = service.calcolaRating("utente-senza-recensioni");
+
+        assertEquals(0, rating.getNumeroRecensioniPrestazione());
+        assertEquals(0, rating.getNumeroRecensioniControprestazione());
+        assertFalse(rating.haRecensioniPrestazione());
+        assertFalse(rating.haRecensioniControprestazione());
+    }
+
+    /**
+     * Verifica che haRecensioniPrestazione/Controprestazione
+     * distinguano correttamente la presenza di almeno una recensione.
+     */
+    @Test
+    void calcolaRatingConUnaRecensioneRestituisceHaRecensioniTrue() {
+
+        RichiestaScambio richiesta = creaScambioConcluso();
+        service.assegna(richiesta.getId(), "mittente1", 5, "Commento");
+
+        RatingUtente rating = service.calcolaRating("autore1");
+
+        assertTrue(rating.haRecensioniPrestazione());
+        assertFalse(rating.haRecensioniControprestazione());
+    }
+
+    /**
+     * Verifica che calcolaRating restituisca contatori a zero
+     * quando l'id utente passato è null o vuoto.
+     */
+    @Test
+    void calcolaRatingConIdUtenteNonValidoRestituisceContatoriAZero() {
+
+        RatingUtente ratingNull = service.calcolaRating(null);
+        assertEquals(0, ratingNull.getNumeroRecensioniPrestazione());
+        assertEquals(0, ratingNull.getNumeroRecensioniControprestazione());
+
+        RatingUtente ratingVuoto = service.calcolaRating("");
+        assertEquals(0, ratingVuoto.getNumeroRecensioniPrestazione());
+        assertEquals(0, ratingVuoto.getNumeroRecensioniControprestazione());
+    }
+
+    /**
+     * Verifica che la media sia calcolata correttamente anche con
+     * punteggi che producono un risultato non intero.
+     */
+    @Test
+    void calcolaRatingConMediaNonInteraCalcolaCorrettamente() {
+
+        Annuncio annuncio1 = annuncioService.crea(
+                "autore3", "Titolo1", "Descrizione",
+                "Categoria", "Sì", "Cambio"
+        );
+        RichiestaScambio richiesta1 = richiestaScambioService.invia(
+                annuncio1.getId(), "mittente1", "Messaggio"
+        );
+        richiestaScambioService.accetta(richiesta1.getId(), "autore3");
+        richiestaScambioService.termina(richiesta1.getId(), "autore3");
+        service.assegna(richiesta1.getId(), "mittente1", 7, "Commento");
+
+        Annuncio annuncio2 = annuncioService.crea(
+                "autore3", "Titolo2", "Descrizione",
+                "Categoria", "Sì", "Cambio"
+        );
+        RichiestaScambio richiesta2 = richiestaScambioService.invia(
+                annuncio2.getId(), "mittente2", "Messaggio"
+        );
+        richiestaScambioService.accetta(richiesta2.getId(), "autore3");
+        richiestaScambioService.termina(richiesta2.getId(), "autore3");
+        service.assegna(richiesta2.getId(), "mittente2", 8, "Commento");
+
+        RatingUtente rating = service.calcolaRating("autore3");
+
+        assertEquals(7.5, rating.getMediaPrestazione());
+    }
 }

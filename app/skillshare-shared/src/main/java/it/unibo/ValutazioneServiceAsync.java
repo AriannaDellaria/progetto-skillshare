@@ -25,4 +25,12 @@ public interface ValutazioneServiceAsync {
             String idUtenteCorrente,
             AsyncCallback<Boolean> callback
     );
+
+    /**
+     * Richiede il rating calcolato per l'utente indicato.
+     */
+    void calcolaRating(
+            String idUtente,
+            AsyncCallback<RatingUtente> callback
+    );
 }

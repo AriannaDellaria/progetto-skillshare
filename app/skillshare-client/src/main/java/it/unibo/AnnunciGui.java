@@ -292,8 +292,10 @@ public class AnnunciGui {
 
         Label descrizione = new Label(annuncio.getDescrizione());
 
-        Label autore = new Label("Pubblicato da: ...");
-        scheda.add(autore);
+        Anchor autore = new Anchor("Pubblicato da: ...");
+        autore.addClickHandler(event ->
+                new ProfiloPubblicoGui(annuncio.getIdAutore(), () -> mostra()).mostra()
+        );
 
         utenteService.trovaPerId(annuncio.getIdAutore(), new AsyncCallback<Utente>() {
             @Override
