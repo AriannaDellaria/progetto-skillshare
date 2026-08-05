@@ -188,4 +188,66 @@ public class ValutazioneServiceImpl
 
         return (double) somma / valutazioni.size();
     }
+
+    /**
+     * Recupera lo storico pubblico degli scambi conclusi dell'utente indicato.
+     */
+    @Override
+    public StoricoUtente recuperaStorico(String idUtente) {
+
+        if (idUtente == null || idUtente.trim().isEmpty()) {
+            return new StoricoUtente();
+        }
+
+        java.util.List<Valutazione> valutazioniPrestazione =
+                valutazioneRepository.trovaPerUtenteValutatoETipo(idUtente, TipoValutazione.PRESTAZIONE);
+
+        java.util.List<Valutazione> valutazioniControprestazione =
+                valutazioneRepository.trovaPerUtenteValutatoETipo(idUtente, TipoValutazione.CONTROPRESTAZIONE);
+
+        java.util.List<VoceStorico> storicoPrestazione =
+                costruisciVociStorico(valutazioniPrestazione, true);
+
+        java.util.List<VoceStorico> storicoControprestazione =
+                costruisciVociStorico(valutazioniControprestazione, false);
+
+        return new StoricoUtente(storicoPrestazione, storicoControprestazione);
+    }
+
+    // Costruisce le voci di storico a partire dalle valutazioni,
+    // recuperando per ciascuna il testo identificativo dalla
+    // richiesta di scambio associata: il titolo dell'annuncio per la
+    // prestazione, il messaggio della proposta per la
+    // controprestazione.
+    private java.util.List<VoceStorico> costruisciVociStorico(
+            java.util.List<Valutazione> valutazioni,
+            boolean usaTitoloAnnuncio
+    ) {
+        java.util.List<VoceStorico> voci = new java.util.ArrayList<>();
+
+        for (Valutazione valutazione : valutazioni) {
+
+            RichiestaScambio richiesta =
+                    richiestaScambioRepository.trovaPerId(valutazione.getIdRichiesta());
+
+            if (richiesta == null) {
+                continue;
+            }
+
+            String testo = usaTitoloAnnuncio
+                    ? richiesta.getTitoloAnnuncio()
+                    : richiesta.getMessaggio();
+
+            voci.add(new VoceStorico(
+                    testo,
+                    valutazione.getPunteggio(),
+                    valutazione.getCommento(),
+                    valutazione.getDataValutazione()
+            ));
+        }
+
+        voci.sort((a, b) -> Long.compare(b.getData(), a.getData()));
+
+        return voci;
+    }
 }

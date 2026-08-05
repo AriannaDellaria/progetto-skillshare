@@ -541,4 +541,169 @@ public class ValutazioneServiceImplTest {
 
         assertEquals(7.5, rating.getMediaPrestazione());
     }
+
+    /**
+     * Verifica che lo storico di prestazione mostri il titolo
+     * dell'annuncio, il punteggio e il commento della valutazione ricevuta.
+     */
+    @Test
+    void recuperaStoricoConValutazioneDiPrestazioneMostraTitoloAnnuncio() {
+
+        RichiestaScambio richiesta = creaScambioConcluso();
+
+        service.assegna(richiesta.getId(), "mittente1", 8, "Esperienza ottima");
+
+        StoricoUtente storico = service.recuperaStorico("autore1");
+
+        assertEquals(1, storico.getStoricoPrestazione().size());
+
+        VoceStorico voce = storico.getStoricoPrestazione().get(0);
+        assertEquals("Titolo", voce.getTesto());
+        assertEquals(8, voce.getPunteggio());
+        assertEquals("Esperienza ottima", voce.getCommento());
+    }
+
+    /**
+     * Verifica che lo storico di controprestazione mostri il
+     * messaggio della richiesta.
+     */
+    @Test
+    void recuperaStoricoConValutazioneDiControprestazioneMostraMessaggioRichiesta() {
+
+        RichiestaScambio richiesta = creaScambioConcluso();
+
+        service.assegna(richiesta.getId(), "autore1", 6, "Controprestazione adeguata");
+
+        StoricoUtente storico = service.recuperaStorico("mittente1");
+
+        assertEquals(1, storico.getStoricoControprestazione().size());
+
+        VoceStorico voce = storico.getStoricoControprestazione().get(0);
+        assertEquals("Messaggio", voce.getTesto());
+        assertEquals(6, voce.getPunteggio());
+        assertEquals("Controprestazione adeguata", voce.getCommento());
+    }
+
+    /**
+     * Verifica che le due sezioni di storico siano indipendenti:
+     * una valutazione di prestazione non compare in quella di
+     * controprestazione e viceversa.
+     */
+    @Test
+    void recuperaStoricoTieneSeparatePrestazioneEControprestazione() {
+
+        RichiestaScambio richiesta = creaScambioConcluso();
+
+        service.assegna(richiesta.getId(), "mittente1", 8, "Prestazione buona");
+        service.assegna(richiesta.getId(), "autore1", 5, "Controprestazione nella media");
+
+        StoricoUtente storicoAutore = service.recuperaStorico("autore1");
+        StoricoUtente storicoMittente = service.recuperaStorico("mittente1");
+
+        assertEquals(1, storicoAutore.getStoricoPrestazione().size());
+        assertTrue(storicoAutore.getStoricoControprestazione().isEmpty());
+
+        assertEquals(1, storicoMittente.getStoricoControprestazione().size());
+        assertTrue(storicoMittente.getStoricoPrestazione().isEmpty());
+    }
+
+    /**
+     * Verifica che lo storico contenga più voci quando l'utente ha
+     * completato più scambi come proprietario, e che siano ordinate
+     * dal più recente al meno recente.
+     */
+    @Test
+    void recuperaStoricoConPiuScambiLiOrdinaDalPiuRecente() throws InterruptedException {
+
+        Annuncio annuncio1 = annuncioService.crea(
+                "autore1", "Primo annuncio", "Descrizione",
+                "Categoria", "Sì", "Cambio"
+        );
+        RichiestaScambio richiesta1 = richiestaScambioService.invia(
+                annuncio1.getId(), "mittente1", "Messaggio"
+        );
+        richiestaScambioService.accetta(richiesta1.getId(), "autore1");
+        richiestaScambioService.termina(richiesta1.getId(), "autore1");
+        service.assegna(richiesta1.getId(), "mittente1", 7, "Primo commento");
+
+        Thread.sleep(5);
+
+        Annuncio annuncio2 = annuncioService.crea(
+                "autore1", "Secondo annuncio", "Descrizione",
+                "Categoria", "Sì", "Cambio"
+        );
+        RichiestaScambio richiesta2 = richiestaScambioService.invia(
+                annuncio2.getId(), "mittente2", "Messaggio"
+        );
+        richiestaScambioService.accetta(richiesta2.getId(), "autore1");
+        richiestaScambioService.termina(richiesta2.getId(), "autore1");
+        service.assegna(richiesta2.getId(), "mittente2", 9, "Secondo commento");
+
+        StoricoUtente storico = service.recuperaStorico("autore1");
+
+        assertEquals(2, storico.getStoricoPrestazione().size());
+        assertEquals("Secondo annuncio", storico.getStoricoPrestazione().get(0).getTesto());
+        assertEquals("Primo annuncio", storico.getStoricoPrestazione().get(1).getTesto());
+    }
+
+    /**
+     * Verifica che uno scambio senza commento produca comunque una
+     * voce di storico valida, con commento vuoto.
+     */
+    @Test
+    void recuperaStoricoConValutazioneSenzaCommentoRestituisceVoceConCommentoVuoto() {
+
+        RichiestaScambio richiesta = creaScambioConcluso();
+
+        service.assegna(richiesta.getId(), "mittente1", 7, "");
+
+        StoricoUtente storico = service.recuperaStorico("autore1");
+
+        VoceStorico voce = storico.getStoricoPrestazione().get(0);
+        assertEquals("", voce.getCommento());
+    }
+
+    /**
+     * Verifica che un utente senza scambi conclusi abbia uno
+     * storico vuoto su entrambe le direzioni.
+     */
+    @Test
+    void recuperaStoricoSenzaScambiRestituisceListeVuote() {
+
+        StoricoUtente storico = service.recuperaStorico("utente-senza-scambi");
+
+        assertNotNull(storico.getStoricoPrestazione());
+        assertNotNull(storico.getStoricoControprestazione());
+        assertTrue(storico.getStoricoPrestazione().isEmpty());
+        assertTrue(storico.getStoricoControprestazione().isEmpty());
+    }
+
+    /**
+     * Verifica che uno scambio concluso ma non ancora valutato non
+     * produca alcuna voce nello storico.
+     */
+    @Test
+    void recuperaStoricoConScambioConclusoNonValutatoNonProduceVoci() {
+
+        creaScambioConcluso();
+
+        StoricoUtente storico = service.recuperaStorico("autore1");
+
+        assertTrue(storico.getStoricoPrestazione().isEmpty());
+    }
+
+    /**
+     * Verifica che recuperaStorico restituisca liste vuote quando
+     * l'id utente passato è null o vuoto.
+     */
+    @Test
+    void recuperaStoricoConIdUtenteNonValidoRestituisceListeVuote() {
+
+        StoricoUtente storicoNull = service.recuperaStorico(null);
+        assertTrue(storicoNull.getStoricoPrestazione().isEmpty());
+        assertTrue(storicoNull.getStoricoControprestazione().isEmpty());
+
+        StoricoUtente storicoVuoto = service.recuperaStorico("");
+        assertTrue(storicoVuoto.getStoricoPrestazione().isEmpty());
+    }
 }
