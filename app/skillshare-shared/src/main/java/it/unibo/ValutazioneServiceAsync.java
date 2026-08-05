@@ -33,4 +33,13 @@ public interface ValutazioneServiceAsync {
             String idUtente,
             AsyncCallback<RatingUtente> callback
     );
+
+    /**
+     * Richiede lo storico pubblico degli scambi conclusi
+     * dell'utente indicato.
+     */
+    void recuperaStorico(
+            String idUtente,
+            AsyncCallback<StoricoUtente> callback
+    );
 }

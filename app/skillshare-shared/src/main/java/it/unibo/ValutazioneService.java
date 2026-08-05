@@ -33,4 +33,10 @@ public interface ValutazioneService extends RemoteService {
      * controprestazione.
      */
     RatingUtente calcolaRating(String idUtente);
+
+    /**
+     * Recupera lo storico pubblico degli scambi conclusi
+     * dell'utente indicato.
+     */
+    StoricoUtente recuperaStorico(String idUtente);
 }
