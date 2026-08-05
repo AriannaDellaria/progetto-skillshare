@@ -26,4 +26,11 @@ public interface ValutazioneService extends RemoteService {
      * richiesta indicata.
      */
     boolean valutazioneGiaEsistente(String idRichiesta, String idUtenteCorrente);
+
+    /**
+     * Calcola il rating dell'utente indicato, come media delle
+     * valutazioni numeriche ricevute, distinto per prestazione e
+     * controprestazione.
+     */
+    RatingUtente calcolaRating(String idUtente);
 }

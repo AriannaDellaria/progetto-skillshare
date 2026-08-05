@@ -76,8 +76,9 @@ public class RichiesteRicevuteGui {
                 "Annuncio: " + richiesta.getTitoloAnnuncio()
         );
 
-        Label mittente = new Label(
-                "Da: " + richiesta.getNomeMittente()
+        Anchor mittente = new Anchor("Da: " + richiesta.getNomeMittente());
+        mittente.addClickHandler(event ->
+                new ProfiloPubblicoGui(richiesta.getIdMittente(), () -> mostra()).mostra()
         );
 
         Label messaggio = new Label(
