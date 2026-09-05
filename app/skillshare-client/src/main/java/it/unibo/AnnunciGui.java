@@ -296,6 +296,7 @@ public class AnnunciGui {
         autore.addClickHandler(event ->
                 new ProfiloPubblicoGui(annuncio.getIdAutore(), () -> mostra()).mostra()
         );
+        scheda.add(autore);
 
         utenteService.trovaPerId(annuncio.getIdAutore(), new AsyncCallback<Utente>() {
             @Override

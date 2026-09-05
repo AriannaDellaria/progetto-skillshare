@@ -20,11 +20,6 @@ public final class SessioneUtente {
         return utenteCorrente;
     }
 
-    // Controlla se esiste una sessione attiva.
-    public static boolean isAutenticato() {
-        return utenteCorrente != null;
-    }
-
     // Chiude la sessione.
     public static void esci() {
         utenteCorrente = null;

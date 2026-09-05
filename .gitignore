@@ -35,7 +35,6 @@ war/WEB-INF/lib/
 *.gwt.rpc
 
 # --- Database (MapDB) ---
-*.db
 *.db.*
 dockerdata/
 
